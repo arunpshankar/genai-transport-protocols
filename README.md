@@ -178,28 +178,6 @@ Several protocols include interactive web demos:
 | **Streamable HTTP** | http://localhost:8000/demo | Chunked response display |
 | **REST HTTP** | http://localhost:8000/docs | API documentation |
 
-## 📊 Performance Characteristics
-
-### Latency Comparison
-| Protocol | First Response | Per Message | Connection Setup |
-|----------|----------------|-------------|------------------|
-| REST HTTP | ~200-500ms | ~200-500ms | ~50ms |
-| Streamable HTTP | ~100-200ms | ~100-200ms | ~50ms |
-| SSE | ~100-200ms | ~1-10ms | ~100ms |
-| WebSocket | ~50-100ms | ~1-10ms | ~100ms |
-| gRPC | ~50-100ms | ~1-5ms | ~50ms |
-
-### Memory Usage
-| Protocol | Connection Overhead | Per Session | Concurrent Users |
-|----------|-------------------|-------------|------------------|
-| REST HTTP | Low | Low | High |
-| Streamable HTTP | Low | Medium | High |
-| SSE | Medium | Medium | Medium |
-| WebSocket | Medium | Medium | Medium |
-| gRPC | Low | Low | Very High |
-
-
-
 ## 🛠️ Technology Stack
 
 ### Core Technologies
@@ -261,23 +239,6 @@ genai-transport-protocols/
 ├── requirements.txt         # Python dependencies
 └── README.md               # This file
 ```
-
-## 🔍 Key Learnings
-
-### Protocol Selection Insights
-
-1. **Start Simple**: REST HTTP for basic functionality, upgrade as needed
-2. **Real-time Requirements**: SSE for server-to-client, WebSocket for bidirectional
-3. **Performance Critical**: gRPC for high-throughput, low-latency applications
-4. **Browser Compatibility**: SSE and WebSocket have excellent modern browser support
-5. **Development Complexity**: HTTP protocols are simpler, gRPC requires more setup
-
-### Implementation Patterns
-
-- **Session Management**: Consistent across all protocols using UUID-based sessions
-- **Error Handling**: Protocol-specific error handling with graceful degradation
-- **Monitoring**: Real-time statistics and health monitoring for all implementations
-- **User Experience**: Rich CLI interfaces with colored output and interactive commands
 
 ## 🤝 Contributing
 
