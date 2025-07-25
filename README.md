@@ -12,16 +12,6 @@ This project implements the **same multi-turn chat functionality** using five di
 4. **[WebSockets](protocols/websocket/)** - Full bidirectional communication
 5. **[gRPC](protocols/grpc/)** - High-performance binary protocol
 
-## 📊 Protocol Comparison
-
-| Protocol | Real-time | Bidirectional | Complexity | Browser Support | Use Case |
-|----------|-----------|---------------|------------|-----------------|----------|
-| **REST HTTP** | ❌ | ❌ | Low | Universal | Simple chat, APIs |
-| **Streamable HTTP** | ✅ | ❌ | Low | Universal | Live responses |
-| **SSE** | ✅ | ❌ | Medium | Modern | Real-time feeds |
-| **WebSockets** | ✅ | ✅ | Medium | Universal | Interactive chat |
-| **gRPC** | ✅ | ✅ | High | Library | High-performance |
-
 ## 🏗️ Architecture Overview
 
 All implementations share the same core components:
@@ -204,64 +194,7 @@ Several protocols include interactive web demos:
 | WebSocket | Medium | Medium | Medium |
 | gRPC | Low | Low | Very High |
 
-## 🔧 Development Features
 
-### Common Features Across All Protocols
-- **Multi-turn Context**: Conversation history preserved
-- **Session Management**: Create, switch, delete, and manage sessions
-- **Real-time Statistics**: Performance monitoring and metrics
-- **Error Handling**: Comprehensive error handling and recovery
-- **Colored Logging**: Rich console output with protocol-specific formatting
-- **Health Monitoring**: Server health checks and connection status
-
-### Protocol-Specific Features
-
-#### WebSocket & gRPC
-- **Bidirectional Communication**: Real-time two-way messaging
-- **Typing Indicators**: Live typing status sharing
-- **Session Broadcasting**: Multi-client session support
-
-#### SSE & Streamable HTTP  
-- **Real-time Streaming**: Live response rendering
-- **Chunk Optimization**: Smooth text streaming experience
-- **Browser Compatible**: Native browser API support
-
-#### REST HTTP
-- **Universal Compatibility**: Works with any HTTP client
-- **Simple Architecture**: Easy to understand and implement
-- **Stateless Design**: No persistent connections required
-
-## 🚀 Use Case Recommendations
-
-### Choose REST HTTP When:
-- Building simple chat APIs
-- Integration with existing REST services
-- Minimal real-time requirements
-- Maximum compatibility needed
-
-### Choose Streamable HTTP When:
-- Need real-time response streaming
-- Want standard HTTP compatibility
-- Working with existing HTTP infrastructure
-- Browser-based applications
-
-### Choose SSE When:
-- Need real-time updates from server
-- Browser-based applications
-- Automatic reconnection is important
-- One-way communication is sufficient
-
-### Choose WebSocket When:
-- Need bidirectional communication
-- Building interactive chat applications
-- Want typing indicators and presence
-- Real-time collaboration features
-
-### Choose gRPC When:
-- Performance is critical
-- Type safety is important
-- Building microservices
-- Cross-language compatibility needed
 
 ## 🛠️ Technology Stack
 
