@@ -145,7 +145,7 @@ env.bak/
 venv.bak/
 
 # Custom virtual environment
-genai-transport-protocols/
+.genai-transport-protocols/
 
 # Credentials and sensitive data
 credentials/
