@@ -3,7 +3,7 @@
 A comprehensive implementation showcase demonstrating **five different transport protocols** for building real-time AI chat applications using Google's Gemini model. This repository explores the performance, complexity, and use-case differences between various communication protocols for streaming AI responses.
 
 <div align="center">
-  <img src="./img/http_gemini.jpg" alt="Description">
+  <img src="./img/http_gemini.png" alt="Description">
 </div>
 
 ## 🚀 Overview
