@@ -1,0 +1,45 @@
+sequenceDiagram
+    participant C as 🖥️ Client
+    participant S as 🔌 Server
+    participant AI as 🤖 GenAI Model
+
+    Note over C, AI: 🔍 Server Health Check (HTTP)
+    C->>+S: GET /health
+    S-->>-C: ✅ 200 OK<br/>🩺 status, WebSocket info
+    
+    Note over C, AI: 🔌 WebSocket Connection
+    C->>+S: WebSocket Handshake<br/>📡 ws://localhost:8000/ws
+    S-->>C: 🤝 Connection Accepted<br/>🔑 connection_id
+    S-->>-C: 📩 WS: connected<br/>✅ {connection_id, server_info}
+    
+    Note over C, AI: 🆕 Session Creation
+    C->>S: 📩 WS: create_session<br/>🔧 {type: "create_session"}
+    S-->>C: 📩 WS: session_created<br/>🔑 {session_id, model}
+    
+    Note over C, AI: 🔌 Bidirectional Chat Stream
+    rect rgb(240, 248, 255)
+        C->>S: 📩 WS: chat<br/>📝 {message, session_id}
+        
+        S-->>C: 📩 WS: status<br/>💭 "Generating response..."
+        
+        S->>+AI: generate_response<br/>🧠 message + history
+        
+        S-->>C: 📩 WS: response_start<br/>🚀 {session_id, total_length}
+        
+        loop 🔌 Real-time Chunks
+            AI-->>S: 📝 response chunk
+            S-->>C: 📩 WS: chunk<br/>✨ {text, chunk_number}
+            Note over C: 🖨️ Display chunk immediately
+        end
+        
+        AI-->>-S: 🏁 response complete
+        S-->>C: 📩 WS: response_complete<br/>✅ {total_chunks, processing_time}
+    end
+    
+    Note over C, AI: 📊 Session Management (HTTP)
+    C->>+S: GET /sessions/{session_id}
+    S-->>-C: ✅ 200 OK<br/>📋 session info
+    
+    Note over C, AI: 🔌 WebSocket Disconnection
+    C->>S: 📩 WS: Close Connection
+    S-->>C: 🔚 Connection Closed

@@ -1,0 +1,41 @@
+sequenceDiagram
+    participant C as 🖥️ Client
+    participant S as 🌊 Server
+    participant AI as 🤖 GenAI Model
+
+    Note over C, AI: 🔍 Server Health Check
+    C->>+S: GET /health
+    S-->>-C: ✅ 200 OK<br/>🩺 status, streaming info
+    
+    Note over C, AI: 🆕 Session Creation
+    C->>+S: POST /sessions/new
+    S-->>-C: ✅ 200 OK<br/>🔑 session_id
+    
+    Note over C, AI: 🌊 SSE Multi-turn Chat Stream
+    rect rgb(240, 248, 255)
+        C->>+S: POST /chat/stream<br/>📝 {message, session_id}
+        Note over S: 🔄 Establish SSE connection
+        
+        S-->>C: 📡 SSE: session_info<br/>🔑 {session_id, model}
+        
+        S-->>C: 📡 SSE: status<br/>💭 "Generating response..."
+        
+        S->>+AI: generate_response<br/>🧠 message + history
+        
+        loop 🌊 Real-time Chunks
+            AI-->>S: 📝 response chunk
+            S-->>C: 📡 SSE: chunk<br/>✨ {text, chunk_number}
+            Note over C: 🖨️ Display chunk in real-time
+        end
+        
+        AI-->>-S: 🏁 response complete
+        S-->>C: 📡 SSE: complete<br/>✅ {total_chunks, processing_time}
+        S-->>-C: 🔚 Close SSE connection
+    end
+    
+    Note over C, AI: 📊 Session Management
+    C->>+S: GET /sessions/{session_id}
+    S-->>-C: ✅ 200 OK<br/>📋 session info
+    
+    C->>+S: DELETE /sessions/{session_id}
+    S-->>-C: ✅ 200 OK<br/>🗑️ deleted

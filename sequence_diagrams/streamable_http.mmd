@@ -1,0 +1,41 @@
+sequenceDiagram
+    participant C as 🖥️ Client
+    participant S as 📡 Server
+    participant AI as 🤖 GenAI Model
+
+    Note over C, AI: 🔍 Server Health Check
+    C->>+S: GET /health
+    S-->>-C: ✅ 200 OK<br/>🩺 status, streaming info
+    
+    Note over C, AI: 🆕 Session Creation
+    C->>+S: POST /sessions/new
+    S-->>-C: ✅ 200 OK<br/>🔑 session_id
+    
+    Note over C, AI: 📡 HTTP Chunked Stream Chat
+    rect rgb(240, 248, 255)
+        C->>+S: POST /chat/stream<br/>📝 {message, session_id}<br/>🔗 Accept: application/x-ndjson
+        Note over S: 🔄 Start chunked transfer encoding
+        
+        S-->>C: 📦 HTTP Chunk: session_info<br/>🔑 {session_id, model} + \n
+        
+        S-->>C: 📦 HTTP Chunk: status<br/>💭 "Generating response..." + \n
+        
+        S->>+AI: generate_response<br/>🧠 message + history
+        
+        loop 📡 Real-time HTTP Chunks
+            AI-->>S: 📝 response chunk
+            S-->>C: 📦 HTTP Chunk: chunk<br/>✨ {text, chunk_number} + \n
+            Note over C: 🖨️ Parse NDJSON and display
+        end
+        
+        AI-->>-S: 🏁 response complete
+        S-->>C: 📦 HTTP Chunk: complete<br/>✅ {total_chunks, processing_time} + \n
+        S-->>-C: 🔚 End chunked response
+    end
+    
+    Note over C, AI: 📊 Session Management
+    C->>+S: GET /sessions/{session_id}
+    S-->>-C: ✅ 200 OK<br/>📋 session info
+    
+    C->>+S: DELETE /sessions/{session_id}
+    S-->>-C: ✅ 200 OK<br/>🗑️ deleted

@@ -1,0 +1,29 @@
+sequenceDiagram
+    participant C as 🖥️ Client
+    participant S as 🔧 Server
+    participant AI as 🤖 GenAI Model
+
+    Note over C, AI: 🔍 Server Health Check
+    C->>+S: GET /health
+    S-->>-C: ✅ 200 OK<br/>🩺 status, model info
+    
+    Note over C, AI: 🆕 Session Creation
+    C->>+S: POST /sessions/new
+    S-->>-C: ✅ 200 OK<br/>🔑 session_id
+    
+    Note over C, AI: 💬 Multi-turn Chat
+    rect rgb(240, 248, 255)
+        loop 🔄 Conversation
+            C->>+S: POST /chat<br/>📝 {message, session_id}
+            S->>+AI: generate_response<br/>🧠 message + history
+            AI-->>-S: 💭 AI response
+            S-->>-C: ✅ 200 OK<br/>📄 {response, message_count}
+        end
+    end
+    
+    Note over C, AI: 📊 Session Management
+    C->>+S: GET /sessions/{session_id}
+    S-->>-C: ✅ 200 OK<br/>📋 session info
+    
+    C->>+S: DELETE /sessions/{session_id}
+    S-->>-C: ✅ 200 OK<br/>🗑️ deleted

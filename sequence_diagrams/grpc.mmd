@@ -1,0 +1,50 @@
+sequenceDiagram
+    participant C as 🖥️ Client
+    participant S as 🚀 gRPC Server
+    participant AI as 🤖 GenAI Model
+
+    Note over C, AI: 🔍 Server Health Check (Unary RPC)
+    C->>+S: GetServerStats()
+    S-->>-C: ✅ ServerStatsResponse<br/>🩺 {uptime, model, framework}
+    
+    Note over C, AI: 🔌 gRPC Connection
+    C->>S: 📡 Establish gRPC Channel<br/>🌐 localhost:50051
+    Note over S: 🤝 Accept gRPC connection
+    
+    Note over C, AI: 🆕 Session Creation (Unary RPC)
+    C->>+S: CreateSession(model_id)
+    S-->>-C: ✅ CreateSessionResponse<br/>🔑 {session_id, model, success}
+    
+    Note over C, AI: 🚀 Bidirectional Streaming Chat
+    rect rgb(240, 248, 255)
+        C->>+S: Chat() - Bidirectional Stream<br/>📝 ChatRequest{MESSAGE, session_id, message}
+        
+        S-->>C: 📨 ChatResponse{STATUS}<br/>💭 "Generating response..."
+        
+        S->>+AI: generate_response<br/>🧠 message + history
+        AI-->>-S: 📄 complete response
+        
+        S-->>C: 📨 ChatResponse{RESPONSE_START}<br/>🚀 stream beginning
+        
+        loop 🚀 Word-by-word Streaming
+            Note over S: 📝 Split response into words
+            S-->>C: 📨 ChatResponse{CHUNK}<br/>✨ {chunk_text, chunk_number}
+            Note over C: 🖨️ Display word immediately
+        end
+        
+        S-->>-C: 📨 ChatResponse{RESPONSE_COMPLETE}<br/>✅ {total_chunks, processing_time}
+    end
+    
+    Note over C, AI: 📊 Session Management (Unary RPCs)
+    C->>+S: GetSessionInfo(session_id)
+    S-->>-C: ✅ SessionInfoResponse<br/>📋 session details
+    
+    C->>+S: ListSessions()
+    S-->>-C: ✅ ListSessionsResponse<br/>📋 {sessions[], active_count}
+    
+    C->>+S: DeleteSession(session_id)
+    S-->>-C: ✅ DeleteSessionResponse<br/>🗑️ {success, message}
+    
+    Note over C, AI: 🔌 gRPC Disconnection
+    C->>S: 🔚 Close gRPC Channel
+    Note over S: 🧹 Cleanup resources
