@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[codz]
+*.py[cod]
 *$py.class
 
 # C extensions
@@ -143,6 +143,18 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Custom virtual environment
+genai-transport-protocols/
+
+# Credentials and sensitive data
+credentials/
+*.key
+*.pem
+*.p12
+*.pfx
+config/secrets.*
+secrets.*
 
 # Spyder project settings
 .spyderproject
