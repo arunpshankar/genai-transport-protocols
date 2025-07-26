@@ -160,7 +160,7 @@ Understanding how each protocol handles the conversation flow:
 Traditional request/response pattern with session context preservation.
 
 ### Streamable HTTP Flow  
-![Streamable HTTP Sequence](sequence_diagrams/streamable_http.png)
+![Streamable HTTP Sequence](sequence_diagrams/streamable-http.png)
 
 HTTP chunked encoding enables real-time streaming with NDJSON format.
 
