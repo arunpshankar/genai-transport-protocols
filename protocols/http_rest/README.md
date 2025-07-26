@@ -18,19 +18,10 @@ python protocols/rest_http/client.py
 **Server**: http://localhost:8000  
 **API Docs**: http://localhost:8000/docs
 
-## Multi-turn Conversation Features
-
-- **Session Management**: Persistent conversation context across messages
-- **Automatic Session Creation**: Sessions created automatically or manually
-- **Context Preservation**: AI remembers previous messages in each session
-- **Session Isolation**: Multiple independent conversations
-- **Session Monitoring**: Real-time tracking of active sessions and statistics
-
 ## Server Implementation
 
 - **Multi-turn Chat Sessions**: Context-aware conversations using ChatSession class
 - **Session Lifecycle Management**: Create, monitor, clear, and delete sessions
-- **Colored Console Logs**: Detailed request/response logs with session context
 - **Real-time Statistics**: Server uptime, session counts, and performance metrics
 - **Auto-generated API Documentation**: Interactive OpenAPI schema
 - **Health Monitoring**: Comprehensive system status with session information
@@ -84,12 +75,6 @@ python protocols/rest_http/client.py
 - `GET /` - Server information and available endpoints
 
 ## Configuration
-
-Set environment variable:
-```bash
-export GENAI_MODEL_ID="your-model-id"  # Default: gemini-2.0-flash
-```
-
 ## Sample Output
 
 ### Multi-turn Server Logs
@@ -161,9 +146,9 @@ You [a1b2c3d4...] › /info
 You › /sessions
 
 ┌─ 📋 ALL ACTIVE SESSIONS (3) ────────────────────────────────┐
-│ 1. a1b2c3d4... (8 msgs, 0:05:23, 14:26:52) ← CURRENT       │
-│ 2. e5f6g7h8... (12 msgs, 0:12:45, 14:15:30)                │
-│ 3. i9j0k1l2... (3 msgs, 0:02:10, 14:30:15)                 │
+│ 1. a1b2c3d4... (8 msgs, 0:05:23, 14:26:52) ← CURRENT        
+│ 2. e5f6g7h8... (12 msgs, 0:12:45, 14:15:30)                 
+│ 3. i9j0k1l2... (3 msgs, 0:02:10, 14:30:15)                   
 └──────────────────────────────────────────────────────────────┘
 
 You › /new
@@ -173,42 +158,3 @@ You › /new
 
 You [m3n4o5p6...] › Hello, this is a new conversation!
 ```
-
-## Technical Implementation
-
-### Multi-turn Architecture
-- **ChatSession Class**: Manages conversation context and history
-- **Session Storage**: In-memory session management with UUID identification
-- **Context Preservation**: Full conversation history maintained per session
-- **Automatic Lifecycle**: Sessions created on-demand, persist until deleted
-
-### Technology Stack
-- **FastAPI**: Modern async web framework with automatic OpenAPI generation
-- **Pydantic**: Type-safe request/response validation and serialization
-- **Uvicorn**: High-performance ASGI server
-- **Colorama**: Cross-platform colored console output
-- **GenAI Client**: Google GenAI integration with context management
-
-### API Design
-- **RESTful Architecture**: Clean resource-based endpoints
-- **Session-aware Requests**: Optional session context in chat requests
-- **Comprehensive Error Handling**: Structured HTTP error responses
-- **Real-time Monitoring**: Live statistics and health metrics
-- **Interactive Documentation**: Auto-generated OpenAPI/Swagger interface
-
-## Session Lifecycle
-
-1. **Automatic Creation**: Send message without session_id → new session created
-2. **Manual Creation**: Use `/sessions/new` endpoint or `/new` client command
-3. **Context Building**: Each message adds to session conversation history
-4. **Monitoring**: Track message counts, duration, and activity
-5. **Management**: Clear history, delete sessions, or list all sessions
-6. **Persistence**: Sessions remain active until explicitly deleted or server restart
-
-## Performance Features
-
-- **Async Processing**: Non-blocking request handling
-- **Efficient Memory Usage**: Sessions stored in memory for fast access
-- **Request Tracking**: Detailed timing and performance metrics
-- **Connection Pooling**: Optimized HTTP client connections
-- **Error Recovery**: Graceful handling of session and network errors
