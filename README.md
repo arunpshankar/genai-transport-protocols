@@ -16,102 +16,6 @@ This project implements the **same multi-turn chat functionality** using five di
 4. **[WebSockets](protocols/websocket/)** - Full bidirectional communication
 5. **[gRPC](protocols/grpc/)** - High-performance binary protocol
 
-## 🏗️ Architecture Overview
-
-All implementations share the same core components:
-
-- **Multi-turn Context**: Persistent conversation history across all protocols
-- **Session Management**: Independent conversations with UUID-based sessions  
-- **Google Gemini Integration**: Consistent AI model across all implementations
-- **Interactive Clients**: Rich CLI clients with session management commands
-- **Performance Monitoring**: Detailed statistics and connection tracking
-
-## 📋 Transport Protocol Details
-
-### 1. REST HTTP
-**Traditional request/response pattern for simple chat applications**
-
-**Before running any server.py, ensure you've completed the [Quick Start setup](#-quick-start) from the project root.**
-
-```bash
-cd protocols/http_rest
-python server.py  # Terminal 1
-python client.py  # Terminal 2
-```
-
-- ✅ Simple implementation
-- ✅ Universal compatibility  
-- ✅ Easy debugging
-- ❌ No real-time streaming
-- ❌ Higher latency per message
-
-### 2. Streamable HTTP
-**HTTP chunked transfer encoding for real-time response streaming**
-
-**Before running any server.py, ensure you've completed the [Quick Start setup](#-quick-start) from the project root.**
-
-```bash
-cd protocols/streamable_http
-python server.py  # Terminal 1
-python client.py  # Terminal 2
-```
-
-- ✅ Real-time streaming responses
-- ✅ Standard HTTP compatibility
-- ✅ NDJSON protocol
-- ✅ Works with any HTTP client
-- ❌ One-way communication only
-
-### 3. Server-Sent Events (SSE)
-**Event-driven real-time streaming with native browser support**
-
-**Before running any server.py, ensure you've completed the [Quick Start setup](#-quick-start) from the project root.**
-
-```bash
-cd protocols/sse
-python server.py  # Terminal 1
-python client.py  # Terminal 2
-```
-
-- ✅ Native browser EventSource API
-- ✅ Automatic reconnection
-- ✅ Structured event types
-- ✅ Built-in error handling
-- ❌ One-way communication only
-
-### 4. WebSockets
-**Full bidirectional real-time communication**
-
-**Before running any server.py, ensure you've completed the [Quick Start setup](#-quick-start) from the project root.**
-
-```bash
-cd protocols/websocket
-python server.py  # Terminal 1
-python client.py  # Terminal 2
-```
-
-- ✅ Full bidirectional communication
-- ✅ Real-time typing indicators
-- ✅ Session broadcasting
-- ✅ Persistent connections
-- ✅ Interactive web demo
-
-### 5. gRPC
-**High-performance binary protocol with type safety**
-
-```bash
-cd protocols/grpc
-python setup.py     # Generate Protocol Buffers
-python server.py    # Terminal 1
-python client.py    # Terminal 2
-```
-
-- ✅ High performance binary protocol
-- ✅ Strong type safety with Protocol Buffers
-- ✅ Bidirectional streaming
-- ✅ Built-in compression and multiplexing
-- ✅ Cross-language compatibility
-
 ## 🎯 Quick Start
 
 ### Prerequisites
@@ -121,7 +25,7 @@ export GENAI_MODEL_ID="gemini-2.0-flash"  # Optional, defaults to gemini-2.0-fla
 ```
 
 ### Initial Setup
-**Before running any protocol, execute these commands from the project root:**
+**Execute these commands from the project root:**
 
 ```bash
 export PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=$PYTHONPATH:.
@@ -130,13 +34,21 @@ export PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=$PYTHONPATH:.
 > **Important**: These environment variables must be set from the root directory of the project to ensure proper module imports and clean Python execution across all protocol implementations.
 
 ### Run Any Protocol
-Choose your protocol and run both server and client:
+Choose your protocol and run both server and client from the project root:
 
 ```bash
+# Example: REST HTTP implementation
+python protocols/http_rest/server.py    # Start server (Terminal 1)
+python protocols/http_rest/client.py    # Start client (Terminal 2)
+
 # Example: WebSocket implementation
-cd protocols/websocket
-python server.py    # Start server (Terminal 1)
-python client.py    # Start client (Terminal 2)
+python protocols/websocket/server.py    # Start server (Terminal 1)
+python protocols/websocket/client.py    # Start client (Terminal 2)
+
+# Example: gRPC implementation (requires setup first)
+python protocols/grpc/setup.py          # Generate Protocol Buffers
+python protocols/grpc/server.py         # Start server (Terminal 1)
+python protocols/grpc/client.py         # Start client (Terminal 2)
 ```
 
 ### Universal Client Commands
@@ -154,6 +66,89 @@ All clients support the same command set:
 | `/docs` | Open API documentation (web protocols) |
 | `/demo` | Open interactive demo (where available) |
 | `/quit` | Exit client |
+
+## 🏗️ Architecture Overview
+
+All implementations share the same core components:
+
+- **Multi-turn Context**: Persistent conversation history across all protocols
+- **Session Management**: Independent conversations with UUID-based sessions  
+- **Google Gemini Integration**: Consistent AI model across all implementations
+- **Interactive Clients**: Rich CLI clients with session management commands
+- **Performance Monitoring**: Detailed statistics and connection tracking
+
+## 📋 Transport Protocol Details
+
+### 1. REST HTTP
+**Traditional request/response pattern for simple chat applications**
+
+```bash
+python protocols/http_rest/server.py  # Terminal 1
+python protocols/http_rest/client.py  # Terminal 2
+```
+
+- ✅ Simple implementation
+- ✅ Universal compatibility  
+- ✅ Easy debugging
+- ❌ No real-time streaming
+- ❌ Higher latency per message
+
+### 2. Streamable HTTP
+**HTTP chunked transfer encoding for real-time response streaming**
+
+```bash
+python protocols/streamable_http/server.py  # Terminal 1
+python protocols/streamable_http/client.py  # Terminal 2
+```
+
+- ✅ Real-time streaming responses
+- ✅ Standard HTTP compatibility
+- ✅ NDJSON protocol
+- ✅ Works with any HTTP client
+- ❌ One-way communication only
+
+### 3. Server-Sent Events (SSE)
+**Event-driven real-time streaming with native browser support**
+
+```bash
+python protocols/sse/server.py  # Terminal 1
+python protocols/sse/client.py  # Terminal 2
+```
+
+- ✅ Native browser EventSource API
+- ✅ Automatic reconnection
+- ✅ Structured event types
+- ✅ Built-in error handling
+- ❌ One-way communication only
+
+### 4. WebSockets
+**Full bidirectional real-time communication**
+
+```bash
+python protocols/websocket/server.py  # Terminal 1
+python protocols/websocket/client.py  # Terminal 2
+```
+
+- ✅ Full bidirectional communication
+- ✅ Real-time typing indicators
+- ✅ Session broadcasting
+- ✅ Persistent connections
+- ✅ Interactive web demo
+
+### 5. gRPC
+**High-performance binary protocol with type safety**
+
+```bash
+python protocols/grpc/setup.py     # Generate Protocol Buffers
+python protocols/grpc/server.py    # Terminal 1
+python protocols/grpc/client.py    # Terminal 2
+```
+
+- ✅ High performance binary protocol
+- ✅ Strong type safety with Protocol Buffers
+- ✅ Bidirectional streaming
+- ✅ Built-in compression and multiplexing
+- ✅ Cross-language compatibility
 
 ## 📈 Protocol Flow Diagrams
 
