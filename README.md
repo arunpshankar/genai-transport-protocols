@@ -31,6 +31,8 @@ All implementations share the same core components:
 ### 1. REST HTTP
 **Traditional request/response pattern for simple chat applications**
 
+**Before running any server.py, ensure you've completed the [Quick Start setup](#-quick-start) from the project root.**
+
 ```bash
 cd protocols/http_rest
 python server.py  # Terminal 1
@@ -45,6 +47,8 @@ python client.py  # Terminal 2
 
 ### 2. Streamable HTTP
 **HTTP chunked transfer encoding for real-time response streaming**
+
+**Before running any server.py, ensure you've completed the [Quick Start setup](#-quick-start) from the project root.**
 
 ```bash
 cd protocols/streamable_http
@@ -61,6 +65,8 @@ python client.py  # Terminal 2
 ### 3. Server-Sent Events (SSE)
 **Event-driven real-time streaming with native browser support**
 
+**Before running any server.py, ensure you've completed the [Quick Start setup](#-quick-start) from the project root.**
+
 ```bash
 cd protocols/sse
 python server.py  # Terminal 1
@@ -75,6 +81,8 @@ python client.py  # Terminal 2
 
 ### 4. WebSockets
 **Full bidirectional real-time communication**
+
+**Before running any server.py, ensure you've completed the [Quick Start setup](#-quick-start) from the project root.**
 
 ```bash
 cd protocols/websocket
@@ -111,6 +119,15 @@ python client.py    # Terminal 2
 pip install -r requirements.txt
 export GENAI_MODEL_ID="gemini-2.0-flash"  # Optional, defaults to gemini-2.0-flash
 ```
+
+### Initial Setup
+**Before running any protocol, execute these commands from the project root:**
+
+```bash
+export PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=$PYTHONPATH:.
+```
+
+> **Important**: These environment variables must be set from the root directory of the project to ensure proper module imports and clean Python execution across all protocol implementations.
 
 ### Run Any Protocol
 Choose your protocol and run both server and client:
@@ -248,5 +265,3 @@ genai-transport-protocols/
 4. Follow the existing patterns for session management and client commands
 5. Include comprehensive documentation and examples
 6. Submit a pull request
-
-#
