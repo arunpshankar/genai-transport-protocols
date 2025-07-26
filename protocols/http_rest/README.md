@@ -1,4 +1,4 @@
-# Protocol: REST HTTP
+# Protocol 1: REST HTTP
 
 REST HTTP multi-turn chat server and client implementation with session management, console logging and API documentation.
 
@@ -9,10 +9,10 @@ REST HTTP multi-turn chat server and client implementation with session manageme
 pip install -r requirements.txt
 
 # 2. Start server (Terminal 1)
-python server.py
+python protocols/rest_http/server.py
 
 # 3. Start client (Terminal 2)
-python client.py
+python protocols/rest_http/client.py
 ```
 
 **Server**: http://localhost:8000  
