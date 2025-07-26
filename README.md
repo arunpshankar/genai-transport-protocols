@@ -154,30 +154,62 @@ python protocols/grpc/client.py    # Terminal 2
 
 Understanding how each protocol handles the conversation flow:
 
-### REST HTTP Flow
-![REST HTTP Sequence](sequence_diagrams/rest.png)
+---
 
-Traditional request/response pattern with session context preservation.
+<div align="center">
+
+### REST HTTP Flow
+<img src="sequence_diagrams/rest.png" alt="REST HTTP Sequence Diagram" width="75%">
+
+*Traditional request/response pattern with session context preservation*
+
+</div>
+
+---
+
+<div align="center">
 
 ### Streamable HTTP Flow  
-![Streamable HTTP Sequence](sequence_diagrams/streamable-http.png)
+<img src="sequence_diagrams/streamable-http.png" alt="Streamable HTTP Sequence Diagram" width="75%">
 
-HTTP chunked encoding enables real-time streaming with NDJSON format.
+*HTTP chunked encoding enables real-time streaming with NDJSON format*
+
+</div>
+
+---
+
+<div align="center">
 
 ### Server-Sent Events Flow
-![SSE Sequence](sequence_diagrams/sse.png)
+<img src="sequence_diagrams/sse.png" alt="SSE Sequence Diagram" width="75%">
 
-Event-driven streaming with automatic reconnection and structured event types.
+*Event-driven streaming with automatic reconnection and structured event types*
+
+</div>
+
+---
+
+<div align="center">
 
 ### WebSocket Flow
-![WebSocket Sequence](sequence_diagrams/websockets.png)
+<img src="sequence_diagrams/websockets.png" alt="WebSocket Sequence Diagram" width="75%">
 
-Bidirectional real-time communication supporting typing indicators and session broadcasting.
+*Bidirectional real-time communication supporting typing indicators and session broadcasting*
+
+</div>
+
+---
+
+<div align="center">
 
 ### gRPC Flow
-![gRPC Sequence](sequence_diagrams/grpc.png)
+<img src="sequence_diagrams/grpc.png" alt="gRPC Sequence Diagram" width="75%">
 
-High-performance binary streaming with Protocol Buffers and type safety.
+*High-performance binary streaming with Protocol Buffers and type safety*
+
+</div>
+
+---
 
 ## 🎛️ Interactive Demos
 
