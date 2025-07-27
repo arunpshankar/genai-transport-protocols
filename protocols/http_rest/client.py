@@ -66,7 +66,7 @@ def check_server_health():
         
         if response.status_code == 200:
             health_data = response.json()
-            print(f"{Fore.GREEN}✅ FastAPI server is healthy!{Style.RESET_ALL}")
+            print(f"{Fore.GREEN}✅ HTTP REST server is healthy!{Style.RESET_ALL}")
             print(f"{Fore.CYAN}   Model: {health_data.get('model', 'Unknown')}{Style.RESET_ALL}")
             print(f"{Fore.CYAN}   Ping: {ping_time*1000:.1f}ms{Style.RESET_ALL}")
             print(f"{Fore.CYAN}   Server Requests: {health_data.get('total_requests', 0)}{Style.RESET_ALL}")
@@ -78,7 +78,7 @@ def check_server_health():
             return False
             
     except requests.exceptions.ConnectionError:
-        print(f"{Fore.RED}❌ Cannot connect to FastAPI server at {SERVER_URL}{Style.RESET_ALL}")
+        print(f"{Fore.RED}❌ Cannot connect to HTTP REST server at {SERVER_URL}{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}💡 Make sure the multi-turn server is running on port 8000{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}💡 Start with: python server.py{Style.RESET_ALL}")
         return False
@@ -486,7 +486,7 @@ def send_message(user_message: str):
         
     except requests.exceptions.ConnectionError:
         session_stats['failed_requests'] += 1
-        print(f"\n{Fore.RED}🔌 Connection failed. Is the FastAPI server running?{Style.RESET_ALL}")
+        print(f"\n{Fore.RED}🔌 Connection failed. Is the HTTP REST server running?{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}💡 Start the server with: python server.py{Style.RESET_ALL}")
         
     except Exception as e:
@@ -501,10 +501,10 @@ def main():
     
     # Check server health before starting
     if not check_server_health():
-        print(f"\n{Fore.RED}Cannot connect to FastAPI server. Exiting...{Style.RESET_ALL}")
+        print(f"\n{Fore.RED}Cannot connect to HTTP REST server. Exiting...{Style.RESET_ALL}")
         return
     
-    print(f"\n{Fore.GREEN}🎉 Connected to FastAPI multi-turn server successfully!{Style.RESET_ALL}")
+    print(f"\n{Fore.GREEN}🎉 Connected to HTTP REST multi-turn server successfully!{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}💡 Type '/help' for available commands{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}💡 Type '/new' to create a session or just start chatting{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}💡 Type '/docs' to open API documentation{Style.RESET_ALL}")
@@ -526,7 +526,7 @@ def main():
                 
             # Handle special commands
             if user_message.lower() == '/quit':
-                print(f"\n{Fore.YELLOW}👋 Thanks for chatting with FastAPI! Goodbye!{Style.RESET_ALL}")
+                print(f"\n{Fore.YELLOW}👋 Thanks for chatting! Goodbye!{Style.RESET_ALL}")
                 print_session_stats()
                 break
                 
