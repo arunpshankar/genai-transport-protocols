@@ -1,9 +1,14 @@
+from datetime import timedelta
+from datetime import datetime
+from colorama import Style
+from colorama import Fore
+from colorama import Back
+from colorama import init
 import requests
 import json
 import time
-from datetime import datetime, timedelta
-from colorama import Fore, Back, Style, init
 import os
+
 
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)
@@ -36,10 +41,9 @@ current_session = {
 }
 
 def print_banner():
-    """Print a beautiful startup banner"""
     banner = f"""
 {Fore.MAGENTA}╔══════════════════════════════════════════════════════════════╗
-║               💬 FASTAPI MULTI-TURN CHAT CLIENT 💬           ║
+║               💬 HTTP REST MULTI-TURN CHAT CLIENT 💬           ║
 ╠══════════════════════════════════════════════════════════════╣
 ║  Server: {SERVER_URL:<47} ║
 ║  Framework: FastAPI{' ' * 41} ║
@@ -50,9 +54,11 @@ def print_banner():
     print(banner)
 
 def check_server_health():
-    """Check if server is healthy and display status"""
+    """
+    Check if server is healthy and display status
+    """
     try:
-        print(f"{Fore.YELLOW}🔍 Checking FastAPI multi-turn server health...{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}🔍 Checking HTTP REST multi-turn server health...{Style.RESET_ALL}")
         
         start_time = time.time()
         response = requests.get(HEALTH_ENDPOINT, timeout=5)
@@ -81,7 +87,9 @@ def check_server_health():
         return False
 
 def create_new_session(model_id=None):
-    """Create a new chat session"""
+    """
+    Create a new chat session
+    """
     try:
         payload = {}
         if model_id:
@@ -111,7 +119,9 @@ def create_new_session(model_id=None):
         return False
 
 def get_session_info(session_id=None):
-    """Get information about current or specified session"""
+    """
+    Get information about current or specified session
+    """
     try:
         if session_id is None:
             session_id = current_session['session_id']
@@ -145,7 +155,9 @@ def get_session_info(session_id=None):
         return False
 
 def list_all_sessions():
-    """List all active sessions on the server"""
+    """
+    List all active sessions on the server
+    """
     try:
         response = requests.get(SESSION_INFO_ENDPOINT, timeout=5)
         
@@ -177,7 +189,9 @@ def list_all_sessions():
         return False
 
 def clear_session_history():
-    """Clear the history of the current session"""
+    """
+    Clear the history of the current session
+    """
     try:
         if current_session['session_id'] is None:
             print(f"{Fore.RED}❌ No active session to clear{Style.RESET_ALL}")
@@ -198,7 +212,9 @@ def clear_session_history():
         return False
 
 def delete_current_session():
-    """Delete the current session"""
+    """
+    Delete the current session
+    """
     try:
         if current_session['session_id'] is None:
             print(f"{Fore.RED}❌ No active session to delete{Style.RESET_ALL}")
@@ -222,7 +238,9 @@ def delete_current_session():
         return False
 
 def log_request_details(message: str, request_size: int, session_info: str):
-    """Log outgoing request details"""
+    """
+    Log outgoing request details
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     print(f"\n{Fore.BLUE}┌─ 📤 SENDING REQUEST [{timestamp}] ────────────────────────────┐{Style.RESET_ALL}")
@@ -238,7 +256,9 @@ def log_request_details(message: str, request_size: int, session_info: str):
     print(f"{Fore.BLUE}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def log_response_details(response_data: dict, http_status: int, response_time: float, response_size: int):
-    """Log incoming response details"""
+    """
+    Log incoming response details
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     if http_status == 200:
@@ -285,7 +305,9 @@ def log_response_details(response_data: dict, http_status: int, response_time: f
         print(f"{Fore.RED}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def display_ai_response(response_text: str, session_context: str = ""):
-    """Display AI response in a beautiful format"""
+    """
+    Display AI response in a beautiful format
+    """
     print(f"\n{Fore.CYAN}🤖 {Back.BLUE} AI Response {Style.RESET_ALL} {session_context}")
     print(f"{Fore.WHITE}{'─' * 60}{Style.RESET_ALL}")
     
@@ -300,7 +322,9 @@ def display_ai_response(response_text: str, session_context: str = ""):
     print(f"{Fore.WHITE}{'─' * 60}{Style.RESET_ALL}")
 
 def print_session_stats():
-    """Print current session statistics"""
+    """
+    Print current session statistics
+    """
     uptime = datetime.now() - session_stats['session_start']
     avg_response_time = (session_stats['total_response_time'] / session_stats['successful_requests'] 
                         if session_stats['successful_requests'] > 0 else 0)
@@ -322,7 +346,9 @@ def print_session_stats():
     print(f"{Fore.MAGENTA}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def print_help():
-    """Print available commands"""
+    """
+    Print available commands
+    """
     print(f"\n{Fore.YELLOW}📋 Available Commands:{Style.RESET_ALL}")
     print(f"{Fore.CYAN}  /help{Style.RESET_ALL}     - Show this help message")
     print(f"{Fore.CYAN}  /stats{Style.RESET_ALL}    - Show client session statistics")
@@ -340,7 +366,9 @@ def print_help():
     print(f"{Fore.CYAN}  /delete{Style.RESET_ALL}   - Delete current session")
 
 def get_server_stats():
-    """Get and display server statistics"""
+    """
+    Get and display server statistics
+    """
     try:
         response = requests.get(STATS_ENDPOINT, timeout=5)
         if response.status_code == 200:
@@ -364,7 +392,9 @@ def get_server_stats():
         print(f"{Fore.RED}❌ Error getting server stats: {e}{Style.RESET_ALL}")
 
 def open_docs():
-    """Open API documentation"""
+    """
+    Open API documentation
+    """
     import webbrowser
     try:
         webbrowser.open(DOCS_ENDPOINT)
@@ -375,7 +405,9 @@ def open_docs():
         print(f"{Fore.YELLOW}💡 Manually visit: {DOCS_ENDPOINT}{Style.RESET_ALL}")
 
 def send_message(user_message: str):
-    """Send message to server and handle response"""
+    """
+    Send message to server and handle response
+    """
     session_stats['messages_sent'] += 1
     
     # Prepare request
@@ -462,7 +494,9 @@ def send_message(user_message: str):
         print(f"\n{Fore.RED}❌ Error: {e}{Style.RESET_ALL}")
 
 def main():
-    """Main chat loop"""
+    """
+    Main chat loop
+    """
     print_banner()
     
     # Check server health before starting
@@ -552,6 +586,7 @@ def main():
             print(f"\n\n{Fore.YELLOW}👋 Input stream ended. Goodbye!{Style.RESET_ALL}")
             print_session_stats()
             break
+
 
 if __name__ == '__main__':
     main()
