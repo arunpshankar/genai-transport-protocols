@@ -103,7 +103,7 @@ chat_stats = {
 async def lifespan(app: FastAPI):
     # Startup
     print_banner()
-    print(f"\n{Fore.GREEN}🚀 FastAPI Multi-turn Chat Server starting up...{Style.RESET_ALL}")
+    print(f"\n{Fore.GREEN}🚀 HTTP REST Multi-turn Chat Server starting up...{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}💡 API Documentation: http://localhost:8000/docs{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}📊 Statistics endpoint: http://localhost:8000/stats{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}❤️  Health check: http://localhost:8000/health{Style.RESET_ALL}")
@@ -112,7 +112,7 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
-    print(f"\n\n{Fore.YELLOW}👋 FastAPI server shutting down gracefully...{Style.RESET_ALL}")
+    print(f"\n\n{Fore.YELLOW}👋 HTTP REST server shutting down gracefully...{Style.RESET_ALL}")
     print(f"{Fore.CYAN}💭 Active sessions: {len(chat_sessions)}{Style.RESET_ALL}")
     print_stats()
     print(f"{Fore.GREEN}✅ Server stopped successfully!{Style.RESET_ALL}")
@@ -120,7 +120,7 @@ async def lifespan(app: FastAPI):
 # FastAPI app initialization
 app = FastAPI(
     title="GenAI Multi-turn Chat API",
-    description="Beautiful FastAPI-based multi-turn chat server with GenAI integration",
+    description="HTTP REST-based multi-turn chat server with GenAI integration",
     version="2.0.0",
     lifespan=lifespan
 )
@@ -135,16 +135,14 @@ app.add_middleware(
 )
 
 def print_banner():
-    """Print a beautiful startup banner"""
-    banner = f"""
-{Fore.CYAN}╔══════════════════════════════════════════════════════════════╗
-║               🚀 FASTAPI MULTI-TURN CHAT SERVER 🚀            ║
-╠══════════════════════════════════════════════════════════════╣
-║  Model: {MODEL_ID:<48} ║
-║  Framework: FastAPI{' ' * 41} ║
-║  Multi-turn: {Fore.GREEN}ENABLED{Fore.CYAN}{' ' * 41} ║
-║  Status: {Fore.GREEN}READY{Fore.CYAN}{' ' * 45} ║
-╚══════════════════════════════════════════════════════════════╝{Style.RESET_ALL}
+    banner = f"""{Fore.CYAN}══════════════════════════════════════════════════════════════
+               🚀 HTTP REST MULTI-TURN CHAT SERVER 🚀            
+══════════════════════════════════════════════════════════════
+  Model: {MODEL_ID:<48} 
+  Framework: FastAPI{' ' * 41} 
+  Multi-turn: {Fore.GREEN}ENABLED{Fore.CYAN}{' ' * 41} 
+  Status: {Fore.GREEN}READY{Fore.CYAN}{' ' * 45} 
+══════════════════════════════════════════════════════════════{Style.RESET_ALL}
 """
     print(banner)
 
