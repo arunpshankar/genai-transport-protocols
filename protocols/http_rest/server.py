@@ -4,7 +4,6 @@ from shared.llm import create_chat_session
 from contextlib import asynccontextmanager
 from shared.llm import ChatSession
 from fastapi import HTTPException 
-from shared.logger import logger
 from pydantic import BaseModel
 from datetime import datetime
 from fastapi import FastAPI
@@ -172,10 +171,10 @@ def create_new_session(model_id: str = None) -> tuple[str, ChatSession]:
         }
         chat_stats['total_sessions_created'] += 1
         
-        logger.info(f"Created new session {session_id} with model {model_id}")
+        print(f"{Fore.CYAN}INFO: Created new session {session_id} with model {model_id}{Style.RESET_ALL}")
         return session_id, chat_session
     except Exception as e:
-        logger.error(f"Failed to create new session: {e}")
+        print(f"{Fore.RED}ERROR: Failed to create new session: {e}{Style.RESET_ALL}")
         raise HTTPException(status_code=500, detail="Failed to create chat session")
 
 def get_or_create_session(session_id: str = None, model_id: str = None) -> tuple[str, ChatSession, bool]:
@@ -317,7 +316,7 @@ async def chat(request: ChatRequest, http_request: Request):
         # Log processing start
         message_count = chat_session.get_message_count()
         log_processing(user_message, session_id, message_count)
-        logger.info(f"Processing message from {client_ip} in session {session_id}")
+        print(f"{Fore.CYAN}INFO: Processing message from {client_ip} in session {session_id}{Style.RESET_ALL}")
         
         # Generate response using chat session
         response_text = chat_session.generate_response(user_message)
@@ -332,7 +331,7 @@ async def chat(request: ChatRequest, http_request: Request):
         
         # Log response details
         log_response_details(response_text, processing_time, session_id, updated_message_count)
-        logger.info(f"Generated response for {client_ip} in session {session_id} in {processing_time:.3f}s")
+        print(f"{Fore.GREEN}SUCCESS: Generated response for {client_ip} in session {session_id} in {processing_time:.3f}s{Style.RESET_ALL}")
         
         # Print updated statistics
         print_stats()
@@ -354,7 +353,7 @@ async def chat(request: ChatRequest, http_request: Request):
         chat_stats['failed_requests'] += 1
         
         log_error_details(e, processing_time)
-        logger.error(f"Error processing request from {client_ip}: {e}")
+        print(f"{Fore.RED}ERROR: Error processing request from {client_ip}: {e}{Style.RESET_ALL}")
         
         print_stats()
         
@@ -382,7 +381,7 @@ async def create_session(request: NewSessionRequest):
             timestamp=datetime.now().isoformat()
         )
     except Exception as e:
-        logger.error(f"Error creating session: {e}")
+        print(f"{Fore.RED}ERROR: Error creating session: {e}{Style.RESET_ALL}")
         raise HTTPException(status_code=500, detail="Failed to create session")
 
 @app.get("/sessions/{session_id}", response_model=SessionInfoResponse)
