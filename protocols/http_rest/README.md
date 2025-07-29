@@ -92,7 +92,7 @@ python protocols/rest_http/client.py
 ### Multi-turn Server Logs
 ```
 ════════════════════════════════════════════════════════════════
-           🚀 FASTAPI MULTI-TURN CHAT SERVER 🚀            
+           🚀 HTTP REST MULTI-TURN CHAT SERVER 🚀            
 ════════════════════════════════════════════════════════════════
   Model: gemini-2.0-flash                                      
   Framework: FastAPI                                           
@@ -128,7 +128,7 @@ python protocols/rest_http/client.py
 
 ### Multi-turn Client Interface
 ```
-💬 FASTAPI MULTI-TURN CHAT CLIENT 💬
+💬 HTTP REST MULTI-TURN CHAT CLIENT 💬
 🎉 Connected to FastAPI multi-turn server successfully!
 
 You [a1b2c3d4...] › What did we discuss earlier?
