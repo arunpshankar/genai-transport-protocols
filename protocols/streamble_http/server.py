@@ -1,40 +1,54 @@
-from shared.setup import initialize_genai_client
-from shared.llm import ChatSession, create_chat_session
-from shared.logger import logger
-from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse, HTMLResponse
+from shared.setup import initialize_genai_client
+from fastapi.responses import StreamingResponse
+from fastapi.responses import HTMLResponse 
+from shared.llm import create_chat_session
+from contextlib import asynccontextmanager
+from shared.llm import ChatSession
+from fastapi import HTTPException
+from typing import AsyncGenerator
 from pydantic import BaseModel
 from datetime import datetime
-import os
-import time
-import uvicorn
-import json
+from fastapi import Request
+from fastapi import FastAPI
+from typing import Optional 
+from colorama import Style
+from colorama import Fore
+from colorama import Back
+from colorama import init 
+from typing import List 
+from typing import Dict
 import asyncio
-from colorama import Fore, Back, Style, init
-from contextlib import asynccontextmanager
-from typing import Dict, List, Optional, AsyncGenerator
+import uvicorn
 import uuid
+import json
+import time
+import os
 
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)
+
 
 # Pydantic models for request/response
 class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
 
+
 class ChatStreamRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
 
+
 class NewSessionRequest(BaseModel):
     model_id: Optional[str] = None
+
 
 class NewSessionResponse(BaseModel):
     session_id: str
     model: str
     timestamp: str
+
 
 class SessionInfoResponse(BaseModel):
     session_id: str
@@ -45,6 +59,7 @@ class SessionInfoResponse(BaseModel):
     model_messages: int
     created_at: str
 
+
 class HealthResponse(BaseModel):
     status: str
     model: str
@@ -54,6 +69,7 @@ class HealthResponse(BaseModel):
     failed_requests: int
     active_sessions: int
     streaming_connections: int
+
 
 class StatsResponse(BaseModel):
     uptime_seconds: int
@@ -107,8 +123,8 @@ async def lifespan(app: FastAPI):
 
 # FastAPI app initialization
 app = FastAPI(
-    title="GenAI Streamable HTTP Multi-turn Chat API",
-    description="Beautiful FastAPI-based streamable HTTP multi-turn chat server with chunked streaming",
+    title="Streamable HTTP Multi-turn Chat API",
+    description="FastAPI-based streamable HTTP multi-turn chat server with chunked streaming",
     version="2.0.0",
     lifespan=lifespan
 )
@@ -123,7 +139,6 @@ app.add_middleware(
 )
 
 def print_banner():
-    """Print a beautiful startup banner"""
     banner = f"""
 {Fore.CYAN}╔══════════════════════════════════════════════════════════════╗
 ║             📡 FASTAPI STREAMABLE HTTP CHAT SERVER 📡         ║
@@ -138,14 +153,18 @@ def print_banner():
     print(banner)
 
 def get_client_ip(request: Request) -> str:
-    """Extract client IP from request"""
+    """
+    Extract client IP from request
+    """
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.client.host if request.client else "Unknown"
 
 def create_new_session(model_id: str = None) -> tuple[str, ChatSession]:
-    """Create a new chat session"""
+    """
+    Create a new chat session
+    """
     session_id = str(uuid.uuid4())
     if model_id is None:
         model_id = MODEL_ID
@@ -160,14 +179,16 @@ def create_new_session(model_id: str = None) -> tuple[str, ChatSession]:
         }
         chat_stats['total_sessions_created'] += 1
         
-        logger.info(f"Created new session {session_id} with model {model_id}")
+        print(f"{Fore.CYAN}INFO: Created new session {session_id} with model {model_id}{Style.RESET_ALL}")
         return session_id, chat_session
     except Exception as e:
-        logger.error(f"Failed to create new session: {e}")
+        print(f"{Fore.RED}ERROR: Failed to create new session: {e}{Style.RESET_ALL}")
         raise HTTPException(status_code=500, detail="Failed to create chat session")
 
 def get_or_create_session(session_id: str = None, model_id: str = None) -> tuple[str, ChatSession, bool]:
-    """Get existing session or create new one"""
+    """
+    Get existing session or create new one
+    """
     is_new_session = False
     
     if session_id is None or session_id not in chat_sessions:
@@ -180,7 +201,9 @@ def get_or_create_session(session_id: str = None, model_id: str = None) -> tuple
     return session_id, chat_session, is_new_session
 
 def log_stream_start(session_id: str, client_ip: str, message: str):
-    """Log the start of an HTTP stream"""
+    """
+    Log the start of an HTTP stream
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     print(f"\n{Fore.MAGENTA}┌─ 📡 HTTP STREAM STARTED [{timestamp}] ───────────────────────┐{Style.RESET_ALL}")
@@ -192,7 +215,9 @@ def log_stream_start(session_id: str, client_ip: str, message: str):
     print(f"{Fore.MAGENTA}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def log_stream_end(session_id: str, total_chunks: int, total_time: float):
-    """Log the end of an HTTP stream"""
+    """
+    Log the end of an HTTP stream
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     print(f"\n{Fore.GREEN}┌─ 📡 HTTP STREAM COMPLETED [{timestamp}] ──────────────────────┐{Style.RESET_ALL}")
@@ -204,14 +229,18 @@ def log_stream_end(session_id: str, total_chunks: int, total_time: float):
     print(f"{Fore.GREEN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def log_stream_chunk(session_id: str, chunk_num: int, chunk_text: str):
-    """Log individual stream chunks"""
+    """
+    Log individual stream chunks
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     preview = chunk_text[:30].replace('\n', ' ') + ('...' if len(chunk_text) > 30 else '')
     
     print(f"{Fore.YELLOW}📡 [{timestamp}] Chunk #{chunk_num}: \"{preview}\"{Style.RESET_ALL}")
 
 def print_stats():
-    """Print current server statistics"""
+    """
+    Print current server statistics
+    """
     uptime = datetime.now() - chat_stats['start_time']
     avg_response_time = (chat_stats['total_response_time'] / chat_stats['successful_requests'] 
                         if chat_stats['successful_requests'] > 0 else 0)
@@ -228,7 +257,9 @@ def print_stats():
     print(f"{Fore.CYAN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 async def generate_chat_stream(chat_session: ChatSession, user_message: str, session_id: str, client_ip: str) -> AsyncGenerator[str, None]:
-    """Generate streaming chat response using HTTP chunked transfer"""
+    """
+    Generate streaming chat response using HTTP chunked transfer
+    """
     stream_id = str(uuid.uuid4())
     start_time = time.time()
     chunk_count = 0
@@ -333,7 +364,7 @@ async def generate_chat_stream(chat_session: ChatSession, user_message: str, ses
             yield json.dumps(error_data) + '\n'
             
             chat_stats['failed_requests'] += 1
-            logger.error(f"Error in stream generation: {e}")
+            print(f"{Fore.RED}ERROR: Error in stream generation: {e}{Style.RESET_ALL}")
             
     finally:
         # Clean up stream tracking
@@ -343,7 +374,9 @@ async def generate_chat_stream(chat_session: ChatSession, user_message: str, ses
 
 @app.post("/chat/stream")
 async def chat_stream(request: ChatStreamRequest, http_request: Request):
-    """Main HTTP streaming chat endpoint with chunked transfer encoding"""
+    """
+    Main HTTP streaming chat endpoint with chunked transfer encoding
+    """
     client_ip = get_client_ip(http_request)
     chat_stats['total_requests'] += 1
     
@@ -370,12 +403,14 @@ async def chat_stream(request: ChatStreamRequest, http_request: Request):
         raise
     except Exception as e:
         chat_stats['failed_requests'] += 1
-        logger.error(f"Error in chat stream: {e}")
+        print(f"{Fore.RED}ERROR: Error in chat stream: {e}{Style.RESET_ALL}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/sessions/new", response_model=NewSessionResponse)
 async def create_session(request: NewSessionRequest):
-    """Create a new chat session"""
+    """
+    Create a new chat session
+    """
     try:
         model_id = request.model_id or MODEL_ID
         session_id, chat_session = create_new_session(model_id)
@@ -386,12 +421,14 @@ async def create_session(request: NewSessionRequest):
             timestamp=datetime.now().isoformat()
         )
     except Exception as e:
-        logger.error(f"Error creating session: {e}")
+        print(f"{Fore.RED}ERROR: Error creating session: {e}{Style.RESET_ALL}")
         raise HTTPException(status_code=500, detail="Failed to create session")
 
 @app.get("/sessions/{session_id}", response_model=SessionInfoResponse)
 async def get_session_info(session_id: str):
-    """Get information about a specific session"""
+    """
+    Get information about a specific session
+    """
     if session_id not in chat_sessions:
         raise HTTPException(status_code=404, detail="Session not found")
     
@@ -411,7 +448,9 @@ async def get_session_info(session_id: str):
 
 @app.delete("/sessions/{session_id}")
 async def delete_session(session_id: str):
-    """Delete a specific session"""
+    """
+    Delete a specific session
+    """
     if session_id not in chat_sessions:
         raise HTTPException(status_code=404, detail="Session not found")
     
@@ -422,7 +461,9 @@ async def delete_session(session_id: str):
 
 @app.post("/sessions/{session_id}/clear")
 async def clear_session(session_id: str):
-    """Clear the history of a specific session"""
+    """
+    Clear the history of a specific session
+    """
     if session_id not in chat_sessions:
         raise HTTPException(status_code=404, detail="Session not found")
     
@@ -433,7 +474,9 @@ async def clear_session(session_id: str):
 
 @app.get("/sessions")
 async def list_sessions():
-    """List all active sessions"""
+    """
+    List all active sessions
+    """
     sessions = []
     for session_id, metadata in session_metadata.items():
         chat_session = chat_sessions[session_id]
@@ -452,7 +495,9 @@ async def list_sessions():
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check(request: Request):
-    """Health check endpoint with detailed status"""
+    """
+    Health check endpoint with detailed status
+    """
     uptime = datetime.now() - chat_stats['start_time']
     
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
@@ -479,7 +524,9 @@ async def health_check(request: Request):
 
 @app.get("/stats", response_model=StatsResponse)
 async def get_stats():
-    """Detailed statistics endpoint"""
+    """
+    Detailed statistics endpoint
+    """
     uptime = datetime.now() - chat_stats['start_time']
     avg_response_time = (chat_stats['total_response_time'] / chat_stats['successful_requests'] 
                         if chat_stats['successful_requests'] > 0 else 0)
@@ -499,7 +546,9 @@ async def get_stats():
 
 @app.get("/demo", response_class=HTMLResponse)
 async def demo_page():
-    """Simple demo page for testing HTTP streaming"""
+    """
+    Simple demo page for testing HTTP streaming
+    """
     html_content = """
     <!DOCTYPE html>
     <html>
@@ -641,7 +690,9 @@ async def demo_page():
 
 @app.get("/")
 async def root():
-    """Root endpoint with API information"""
+    """
+    Root endpoint with API information
+    """
     return {
         "name": "GenAI Streamable HTTP Multi-turn Chat API",
         "version": "2.0.0",
@@ -661,6 +712,7 @@ async def root():
             "docs": "GET /docs"
         }
     }
+
 
 if __name__ == '__main__':
     try:
