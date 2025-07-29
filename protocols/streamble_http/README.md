@@ -22,15 +22,6 @@ python client.py
 **API Docs**: http://localhost:8000/docs  
 **HTTP Demo**: http://localhost:8000/demo
 
-## HTTP Streaming Features
-
-- **Chunked Transfer Encoding**: Real-time response streaming using HTTP/1.1 chunked encoding
-- **NDJSON Protocol**: Newline-delimited JSON for structured streaming data
-- **Multi-turn Context**: Persistent conversation history across streaming responses
-- **Session Management**: Independent streaming conversations with context preservation
-- **Connection Monitoring**: Real-time tracking of active HTTP streams and connections
-- **Standard HTTP**: Compatible with any HTTP client, no special protocols required
-
 ## Server Implementation
 
 - **HTTP Streaming Engine**: Real-time response streaming using FastAPI + StreamingResponse
@@ -135,35 +126,35 @@ export GENAI_MODEL_ID="your-model-id"  # Default: gemini-2.0-flash
 
 ### HTTP Streaming Server Logs
 ```
-╔══════════════════════════════════════════════════════════════╗
-║             📡 FASTAPI STREAMABLE HTTP CHAT SERVER 📡         ║
-╠══════════════════════════════════════════════════════════════╣
-║  Model: gemini-2.0-flash                                      ║
-║  Framework: FastAPI + HTTP Streaming                          ║
-║  Multi-turn: ENABLED                                          ║
-║  Streaming: CHUNKED HTTP                                      ║
-║  Status: READY                                                ║
-╚══════════════════════════════════════════════════════════════╝
+══════════════════════════════════════════════════════════════
+             📡 FASTAPI STREAMABLE HTTP CHAT SERVER 📡         
+══════════════════════════════════════════════════════════════
+  Model: gemini-2.0-flash                                      
+  Framework: FastAPI + HTTP Streaming                          
+  Multi-turn: ENABLED                                          
+  Streaming: CHUNKED HTTP                                      
+  Status: READY                                                
+══════════════════════════════════════════════════════════════
 
-┌─ 📡 HTTP STREAM STARTED [14:32:15.123] ───────────────────────┐
-│ Client IP: 127.0.0.1                                          │
-│ Session: a1b2c3d4...                                         │
-│ Message: "Explain quantum computing"                          │
-│ Active Streams: 1                                            │
-│ Transfer-Encoding: chunked                                    │
-└────────────────────────────────────────────────────────────┘
+─ 📡 HTTP STREAM STARTED [14:32:15.123] ───────────────────────
+ Client IP: 127.0.0.1                                          
+ Session: a1b2c3d4...                                         
+ Message: "Explain quantum computing"                          
+ Active Streams: 1                                            
+ Transfer-Encoding: chunked                                    
+────────────────────────────────────────────────────────────
 
 📡 [14:32:15.456] Chunk #1: "Quantum computing is a..."
 📡 [14:32:15.523] Chunk #2: "revolutionary approach to..."
 📡 [14:32:15.598] Chunk #3: "information processing that..."
 
-┌─ 📡 HTTP STREAM COMPLETED [14:32:17.234] ──────────────────────┐
-│ Session: a1b2c3d4...                                         │
-│ Total Chunks: 23                                            │
-│ Total Time: 2.111s                                          │
-│ Active Streams: 0                                           │
-│ Status: SUCCESS                                              │
-└────────────────────────────────────────────────────────────┘
+─ 📡 HTTP STREAM COMPLETED [14:32:17.234] ──────────────────────
+ Session: a1b2c3d4...                                         
+ Total Chunks: 23                                            
+ Total Time: 2.111s                                          
+ Active Streams: 0                                           
+ Status: SUCCESS                                              
+────────────────────────────────────────────────────────────
 ```
 
 ### Real-time Client Interface
@@ -186,13 +177,13 @@ computers use quantum bits or "qubits" that can exist in multiple
 states simultaneously through a property called superposition...
 ────────────────────────────────────────────────────────────
 
-┌─ 📡 HTTP STREAM COMPLETED [14:32:17.234] ─────────────────────┐
-│ Total Chunks: 23                                            │
-│ Total Time: 2.111s                                          │
-│ Context Messages: 8                                         │
-│ Transfer-Encoding: chunked                                   │
-│ Status: SUCCESS                                              │
-└────────────────────────────────────────────────────────────┘
+─ 📡 HTTP STREAM COMPLETED [14:32:17.234] ─────────────────────
+ Total Chunks: 23                                            
+ Total Time: 2.111s                                          
+ Context Messages: 8                                         
+ Transfer-Encoding: chunked                                   
+ Status: SUCCESS                                              
+────────────────────────────────────────────────────────────
 ```
 
 ### Interactive Web Demo
@@ -213,23 +204,23 @@ You › /demo
 ```
 You [a1b2c3d4...] › /info
 
-┌─ 📋 SESSION INFO ────────────────────────────────────────────┐
-│ Session ID: a1b2c3d4...                                      │
-│ Model: gemini-2.0-flash                                      │
-│ Total Messages: 8                                            │
-│ User Messages: 4                                             │
-│ AI Messages: 4                                               │
-│ Duration: 0:05:23                                            │
-│ Created: 14:26:52                                            │
-└──────────────────────────────────────────────────────────────┘
+─ 📋 SESSION INFO ────────────────────────────────────────────
+ Session ID: a1b2c3d4...                                      
+ Model: gemini-2.0-flash                                      
+ Total Messages: 8                                            
+ User Messages: 4                                             
+ AI Messages: 4                                               
+ Duration: 0:05:23                                            
+ Created: 14:26:52                                            
+──────────────────────────────────────────────────────────────
 
 You › /sessions
 
-┌─ 📋 ALL ACTIVE SESSIONS (3) ────────────────────────────────┐
-│ 1. a1b2c3d4... (8 msgs, 0:05:23, 14:26:52) ← CURRENT       │
-│ 2. e5f6g7h8... (12 msgs, 0:12:45, 14:15:30)                │
-│ 3. i9j0k1l2... (3 msgs, 0:02:10, 14:30:15)                 │
-└──────────────────────────────────────────────────────────────┘
+─ 📋 ALL ACTIVE SESSIONS (3) ────────────────────────────────
+ 1. a1b2c3d4... (8 msgs, 0:05:23, 14:26:52) ← CURRENT       
+ 2. e5f6g7h8... (12 msgs, 0:12:45, 14:15:30)                
+ 3. i9j0k1l2... (3 msgs, 0:02:10, 14:30:15)                 
+──────────────────────────────────────────────────────────────
 
 You › /new
 ✨ New session created successfully!
@@ -251,33 +242,33 @@ You'll see my responses appear word by word as I generate...
 ```
 You › /stats
 
-┌─ 📊 CLIENT SESSION STATISTICS ──────────────────────────────┐
-│ Client Session Duration: 0:15:23                             │
-│ Messages Sent: 12                                           │
-│ Successful Streams: 11                                      │
-│ Failed Streams: 1                                           │
-│ Total Chunks Received: 267                                  │
-│ Avg Chunks per Stream: 24.3                                │
-│ Sessions Created: 2                                         │
-│ Avg Response Time: 2.456s                                  │
-│ Current Session: a1b2c3d4...                               │
-│ Session Messages: 8                                         │
-└────────────────────────────────────────────────────────────┘
+─ 📊 CLIENT SESSION STATISTICS ──────────────────────────────
+ Client Session Duration: 0:15:23                             
+ Messages Sent: 12                                           
+ Successful Streams: 11                                      
+ Failed Streams: 1                                           
+ Total Chunks Received: 267                                  
+ Avg Chunks per Stream: 24.3                                
+ Sessions Created: 2                                         
+ Avg Response Time: 2.456s                                  
+ Current Session: a1b2c3d4...                               
+ Session Messages: 8                                         
+────────────────────────────────────────────────────────────
 
 You › /server
 
-┌─ 🖥️  HTTP STREAMING SERVER STATISTICS ──────────────────────┐
-│ Server Uptime: 1:23:45                                      │
-│ Total Requests: 47                                          │
-│ Successful: 45                                              │
-│ Failed: 2                                                   │
-│ Active Sessions: 3                                          │
-│ Active Streams: 0                                           │
-│ Total Sessions Created: 8                                   │
-│ Avg Response Time: 2.234s                                  │
-│ Model: gemini-2.0-flash                                     │
-│ Framework: FastAPI + HTTP Streaming                         │
-└────────────────────────────────────────────────────────────┘
+─ 🖥️  HTTP STREAMING SERVER STATISTICS ──────────────────────
+ Server Uptime: 1:23:45                                      
+ Total Requests: 47                                          
+ Successful: 45                                              
+ Failed: 2                                                   
+ Active Sessions: 3                                          
+ Active Streams: 0                                           
+ Total Sessions Created: 8                                   
+ Avg Response Time: 2.234s                                  
+ Model: gemini-2.0-flash                                     
+ Framework: FastAPI + HTTP Streaming                         
+────────────────────────────────────────────────────────────
 ```
 
 ## Technical Implementation
