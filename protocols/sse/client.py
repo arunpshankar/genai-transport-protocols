@@ -1,14 +1,19 @@
+from datetime import timedelta 
+from datetime import datetime
+from typing import Optional
+from colorama import Style
+from colorama import Fore
+from colorama import Back
+from colorama import init
+import threading
 import requests
 import json
 import time
-import threading
-from datetime import datetime, timedelta
-from colorama import Fore, Back, Style, init
 import os
-from typing import Optional
 
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)
+
 
 # Configuration
 SERVER_URL = 'http://localhost:8000'
@@ -49,22 +54,23 @@ stream_state = {
 }
 
 def print_banner():
-    """Print a beautiful startup banner"""
     banner = f"""
-{Fore.MAGENTA}╔══════════════════════════════════════════════════════════════╗
-║               🌊 FASTAPI SSE MULTI-TURN CHAT CLIENT 🌊        ║
-╠══════════════════════════════════════════════════════════════╣
-║  Server: {SERVER_URL:<47} ║
-║  Framework: FastAPI + SSE{' ' * 37} ║
-║  Multi-turn: {Fore.GREEN}ENABLED{Fore.MAGENTA}{' ' * 39} ║
-║  Streaming: {Fore.GREEN}REAL-TIME{Fore.MAGENTA}{' ' * 38} ║
-║  Status: {Fore.GREEN}CONNECTING...{Fore.MAGENTA}{' ' * 39} ║
-╚══════════════════════════════════════════════════════════════╝{Style.RESET_ALL}
+{Fore.MAGENTA}══════════════════════════════════════════════════════════════
+               🌊 FASTAPI SSE MULTI-TURN CHAT CLIENT 🌊        
+══════════════════════════════════════════════════════════════
+  Server: {SERVER_URL:<47} 
+  Framework: FastAPI + SSE{' ' * 37} 
+  Multi-turn: {Fore.GREEN}ENABLED{Fore.MAGENTA}{' ' * 39} 
+  Streaming: {Fore.GREEN}REAL-TIME{Fore.MAGENTA}{' ' * 38} 
+  Status: {Fore.GREEN}CONNECTING...{Fore.MAGENTA}{' ' * 39} 
+══════════════════════════════════════════════════════════════{Style.RESET_ALL}
 """
     print(banner)
 
 def check_server_health():
-    """Check if server is healthy and display status"""
+    """
+    Check if server is healthy and display status
+    """
     try:
         print(f"{Fore.YELLOW}🔍 Checking FastAPI SSE server health...{Style.RESET_ALL}")
         
@@ -96,7 +102,9 @@ def check_server_health():
         return False
 
 def create_new_session(model_id=None):
-    """Create a new chat session"""
+    """
+    Create a new chat session
+    """
     try:
         payload = {}
         if model_id:
@@ -126,7 +134,9 @@ def create_new_session(model_id=None):
         return False
 
 def get_session_info(session_id=None):
-    """Get information about current or specified session"""
+    """
+    Get information about current or specified session
+    """
     try:
         if session_id is None:
             session_id = current_session['session_id']
@@ -160,7 +170,9 @@ def get_session_info(session_id=None):
         return False
 
 def list_all_sessions():
-    """List all active sessions on the server"""
+    """
+    List all active sessions on the server
+    """
     try:
         response = requests.get(SESSION_INFO_ENDPOINT, timeout=5)
         
@@ -192,7 +204,9 @@ def list_all_sessions():
         return False
 
 def clear_session_history():
-    """Clear the history of the current session"""
+    """
+    Clear the history of the current session
+    """
     try:
         if current_session['session_id'] is None:
             print(f"{Fore.RED}❌ No active session to clear{Style.RESET_ALL}")
@@ -213,7 +227,9 @@ def clear_session_history():
         return False
 
 def delete_current_session():
-    """Delete the current session"""
+    """
+    Delete the current session
+    """
     try:
         if current_session['session_id'] is None:
             print(f"{Fore.RED}❌ No active session to delete{Style.RESET_ALL}")
@@ -237,7 +253,9 @@ def delete_current_session():
         return False
 
 def log_stream_start(message: str, session_info: str):
-    """Log the start of an SSE stream"""
+    """
+    Log the start of an SSE stream
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     print(f"\n{Fore.BLUE}┌─ 🌊 STARTING SSE STREAM [{timestamp}] ───────────────────────┐{Style.RESET_ALL}")
@@ -252,14 +270,18 @@ def log_stream_start(message: str, session_info: str):
     print(f"{Fore.BLUE}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def log_stream_chunk(chunk_num: int, chunk_text: str):
-    """Log individual stream chunks"""
+    """
+    Log individual stream chunks
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     preview = chunk_text[:40].replace('\n', ' ') + ('...' if len(chunk_text) > 40 else '')
     
     print(f"{Fore.YELLOW}🌊 [{timestamp}] Chunk #{chunk_num}: \"{preview}\"{Style.RESET_ALL}")
 
 def log_stream_complete(total_chunks: int, total_time: float, message_count: int):
-    """Log stream completion"""
+    """
+    Log stream completion
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     print(f"\n{Fore.GREEN}┌─ 🌊 SSE STREAM COMPLETED [{timestamp}] ──────────────────────┐{Style.RESET_ALL}")
@@ -270,16 +292,22 @@ def log_stream_complete(total_chunks: int, total_time: float, message_count: int
     print(f"{Fore.GREEN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def display_ai_response_header(session_context: str = ""):
-    """Display AI response header"""
+    """
+    Display AI response header
+    """
     print(f"\n{Fore.CYAN}🤖 {Back.BLUE} AI Response (Streaming) {Style.RESET_ALL} {session_context}")
     print(f"{Fore.WHITE}{'─' * 60}{Style.RESET_ALL}")
 
 def display_ai_response_footer():
-    """Display AI response footer"""
+    """
+    Display AI response footer
+    """
     print(f"{Fore.WHITE}{'─' * 60}{Style.RESET_ALL}")
 
 def print_session_stats():
-    """Print current session statistics"""
+    """
+    Print current session statistics
+    """
     uptime = datetime.now() - session_stats['session_start']
     avg_response_time = (session_stats['total_response_time'] / session_stats['successful_requests'] 
                         if session_stats['successful_requests'] > 0 else 0)
@@ -305,7 +333,9 @@ def print_session_stats():
     print(f"{Fore.MAGENTA}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def print_help():
-    """Print available commands"""
+    """
+    Print available commands
+    """
     print(f"\n{Fore.YELLOW}📋 Available Commands:{Style.RESET_ALL}")
     print(f"{Fore.CYAN}  /help{Style.RESET_ALL}     - Show this help message")
     print(f"{Fore.CYAN}  /stats{Style.RESET_ALL}    - Show client session statistics")
@@ -324,7 +354,9 @@ def print_help():
     print(f"{Fore.CYAN}  /delete{Style.RESET_ALL}   - Delete current session")
 
 def get_server_stats():
-    """Get and display server statistics"""
+    """
+    Get and display server statistics
+    """
     try:
         response = requests.get(STATS_ENDPOINT, timeout=5)
         if response.status_code == 200:
@@ -349,7 +381,9 @@ def get_server_stats():
         print(f"{Fore.RED}❌ Error getting server stats: {e}{Style.RESET_ALL}")
 
 def open_docs():
-    """Open API documentation"""
+    """
+    Open API documentation
+    """
     import webbrowser
     try:
         webbrowser.open(DOCS_ENDPOINT)
@@ -360,7 +394,9 @@ def open_docs():
         print(f"{Fore.YELLOW}💡 Manually visit: {DOCS_ENDPOINT}{Style.RESET_ALL}")
 
 def open_demo():
-    """Open SSE demo page"""
+    """
+    Open SSE demo page
+    """
     import webbrowser
     try:
         webbrowser.open(DEMO_ENDPOINT)
@@ -371,7 +407,9 @@ def open_demo():
         print(f"{Fore.YELLOW}💡 Manually visit: {DEMO_ENDPOINT}{Style.RESET_ALL}")
 
 def send_message_stream(user_message: str):
-    """Send message to server and handle SSE stream response"""
+    """
+    Send message to server and handle SSE stream response
+    """
     session_stats['messages_sent'] += 1
     session_stats['total_streams'] += 1
     
@@ -520,7 +558,9 @@ def send_message_stream(user_message: str):
         stream_state['stream_start_time'] = None
 
 def main():
-    """Main chat loop"""
+    """
+    Main chat loop
+    """
     print_banner()
     
     # Check server health before starting
@@ -625,6 +665,7 @@ def main():
             print(f"\n\n{Fore.YELLOW}👋 Input stream ended. Goodbye!{Style.RESET_ALL}")
             print_session_stats()
             break
+
 
 if __name__ == '__main__':
     main()
