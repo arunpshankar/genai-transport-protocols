@@ -1,11 +1,16 @@
 from shared.setup import initialize_genai_client
-from shared.logger import logger
 from typing import Optional
+from colorama import Style 
+from colorama import Fore
+from colorama import init 
 from google import genai
 from typing import Dict 
 from typing import List 
 from typing import Any 
 import time
+
+# Initialize colorama
+init(autoreset=True)
 
 
 class ChatSession:
@@ -26,7 +31,7 @@ class ChatSession:
         self.model_id = model_id
         self.chat_history: List[Dict[str, Any]] = []
         self.session_start_time = time.time()
-        logger.info(f"Chat session initialized with model: {model_id}")
+        print(f"{Fore.GREEN}Chat session initialized with model: {model_id}{Style.RESET_ALL}")
     
     def add_message(self, role: str, content: str) -> None:
         """
@@ -40,7 +45,7 @@ class ChatSession:
             "role": role,
             "parts": [{"text": content}]
         })
-        logger.debug(f"Added {role} message to chat history")
+        print(f"{Fore.CYAN}Added {role} message to chat history{Style.RESET_ALL}")
     
     def get_chat_history(self) -> List[Dict[str, Any]]:
         """
@@ -68,7 +73,7 @@ class ChatSession:
             # Add user message to history
             self.add_message("user", user_input)
             
-            logger.info(f"Generating response for message (length: {len(user_input)} chars)")
+            print(f"{Fore.BLUE}Generating response for message (length: {len(user_input)} chars){Style.RESET_ALL}")
             start_time = time.time()
             
             # Generate response with full chat history for context
@@ -85,20 +90,20 @@ class ChatSession:
             # Add model response to history
             self.add_message("model", response_text)
             
-            logger.info(f"Response generated in {elapsed_time:.2f} seconds")
-            logger.debug(f"Response: {response_text[:100]}{'...' if len(response_text) > 100 else ''}")
+            print(f"{Fore.GREEN}Response generated in {elapsed_time:.2f} seconds{Style.RESET_ALL}")
+            print(f"{Fore.CYAN}Response: {response_text[:100]}{'...' if len(response_text) > 100 else ''}{Style.RESET_ALL}")
             
             return response_text
             
         except Exception as e:
-            logger.error("Failed to generate response")
-            logger.error(f"Exception details: {e}")
+            print(f"{Fore.RED}Failed to generate response{Style.RESET_ALL}")
+            print(f"{Fore.RED}Exception details: {e}{Style.RESET_ALL}")
             raise
     
     def clear_history(self) -> None:
         """Clear the chat history."""
         self.chat_history.clear()
-        logger.info("Chat history cleared")
+        print(f"{Fore.YELLOW}Chat history cleared{Style.RESET_ALL}")
     
     def get_message_count(self) -> int:
         """Get the number of messages in the chat history."""
@@ -154,7 +159,7 @@ def create_chat_session(model_id: str = "gemini-2.0-flash") -> ChatSession:
         client = initialize_genai_client()
         return ChatSession(client, model_id)
     except Exception as e:
-        logger.error(f"Failed to create chat session: {e}")
+        print(f"{Fore.RED}Failed to create chat session: {e}{Style.RESET_ALL}")
         raise
 
 def generate_single_response(prompt: str, model_id: str = "gemini-2.0-flash") -> str:
@@ -173,7 +178,7 @@ def generate_single_response(prompt: str, model_id: str = "gemini-2.0-flash") ->
     """
     try:
         client = initialize_genai_client()
-        logger.info(f"Generating single-turn content using model: {model_id}")
+        print(f"{Fore.BLUE}Generating single-turn content using model: {model_id}{Style.RESET_ALL}")
         start_time = time.time()
         
         response = client.models.generate_content(model=model_id, contents=prompt)
@@ -182,34 +187,10 @@ def generate_single_response(prompt: str, model_id: str = "gemini-2.0-flash") ->
         elapsed_time = end_time - start_time
         
         response_text = response.text.strip()
-        logger.info(f"Content generated successfully in {elapsed_time:.2f} seconds")
+        print(f"{Fore.GREEN}Content generated successfully in {elapsed_time:.2f} seconds{Style.RESET_ALL}")
         
         return response_text
         
     except Exception as e:
-        logger.error("Failed to generate content")
-        logger.error(f"Exception details: {e}")
-        raise
-
-
-if __name__ == "__main__":
-    try:
-        # Example 1: Single response
-        response = generate_single_response("What's the largest planet in our solar system?")
-        print(f"Single response: {response}")
-        
-        # Example 2: Multi-turn chat
-        chat = create_chat_session()
-        
-        response1 = chat.generate_response("Hello, what's your name?")
-        print(f"Response 1: {response1}")
-        
-        response2 = chat.generate_response("Can you remember what I just asked you?")
-        print(f"Response 2: {response2}")
-        
-        # Get conversation summary
-        summary = chat.get_conversation_summary()
-        print(f"Conversation summary: {summary}")
-        
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        print(f"{Fore.RED}Failed to generate content{Style.RESET_ALL}")
+        print(f"{Fore.RED}Exception details: {e}{Style.RESET_ALL}")

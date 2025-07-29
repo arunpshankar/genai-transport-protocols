@@ -1,9 +1,14 @@
-from shared.logger import logger 
 from typing import Optional
-from typing import Dict 
-from typing import Any 
-import json 
+from colorama import Style
+from colorama import Fore
+from colorama import init 
+from typing import Dict
+from typing import Any
+import json
 import yaml
+
+# Initialize colorama
+init(autoreset=True)
 
 
 def load_yaml(filename: str) -> Dict[str, Any]:
@@ -25,14 +30,15 @@ def load_yaml(filename: str) -> Dict[str, Any]:
         with open(filename, 'r') as file:
             return yaml.safe_load(file)
     except FileNotFoundError:
-        logger.error(f"File '{filename}' not found.")
+        print(f"{Fore.RED}File '{filename}' not found.{Style.RESET_ALL}")
         raise
     except yaml.YAMLError as e:
-        logger.error(f"Error parsing YAML file '{filename}': {e}")
+        print(f"{Fore.RED}Error parsing YAML file '{filename}': {e}{Style.RESET_ALL}")
         raise
     except Exception as e:
-        logger.error(f"Error loading YAML file: {e}")
+        print(f"{Fore.RED}Error loading YAML file: {e}{Style.RESET_ALL}")
         raise
+
 
 def load_json(filename: str) -> Optional[Dict[str, Any]]:
     """
@@ -53,14 +59,15 @@ def load_json(filename: str) -> Optional[Dict[str, Any]]:
         with open(filename, 'r') as file:
             return json.load(file)
     except FileNotFoundError:
-        logger.error(f"File '{filename}' not found.")
+        print(f"{Fore.RED}File '{filename}' not found.{Style.RESET_ALL}")
         return None
     except json.JSONDecodeError:
-        logger.error(f"File '{filename}' contains invalid JSON.")
+        print(f"{Fore.RED}File '{filename}' contains invalid JSON.{Style.RESET_ALL}")
         return None
     except Exception as e:
-        logger.error(f"Error loading JSON file: {e}")
+        print(f"{Fore.RED}Error loading JSON file: {e}{Style.RESET_ALL}")
         raise
+
 
 def read_file(path: str) -> Optional[str]:
     """
@@ -77,11 +84,12 @@ def read_file(path: str) -> Optional[str]:
             content: str = file.read()
         return content
     except FileNotFoundError:
-        logger.info(f"File not found: {path}")
+        print(f"{Fore.BLUE}File not found: {path}{Style.RESET_ALL}")
         return None
     except Exception as e:
-        logger.info(f"Error reading file: {e}")
+        print(f"{Fore.BLUE}Error reading file: {e}{Style.RESET_ALL}")
         return None
+
 
 def write_to_file(path: str, content: str) -> None:
     """
@@ -97,10 +105,10 @@ def write_to_file(path: str, content: str) -> None:
     try:
         with open(path, 'a', encoding='utf-8') as file:
             file.write(content)
-        logger.info(f"Content written to file: {path}")
+        print(f"{Fore.GREEN}Content written to file: {path}{Style.RESET_ALL}")
     except FileNotFoundError:
-        logger.error(f"File not found: {path}")
+        print(f"{Fore.RED}File not found: {path}{Style.RESET_ALL}")
         raise
     except Exception as e:
-        logger.error(f"Error writing to file '{path}': {e}")
+        print(f"{Fore.RED}Error writing to file '{path}': {e}{Style.RESET_ALL}")
         raise

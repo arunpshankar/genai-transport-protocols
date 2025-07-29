@@ -21,7 +21,6 @@ import time
 import uuid
 import os
 
-
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)
 
