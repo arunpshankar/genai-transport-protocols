@@ -4,17 +4,34 @@ Real-time streaming multi-turn chat server and client implementation using HTTP 
 
 ## Quick Start
 
-```bash
-# 1. Install dependencies
+**Prerequisites**
+
+```
 pip install -r requirements.txt
+export GENAI_MODEL_ID="gemini-2.0-flash"  # Optional, defaults to gemini-2.0-flash
+```
 
-# 2. Start server (Terminal 1)
-python server.py
+**Initial Setup**
+**Before running any server.py, execute these commands from the project root:**
 
-# 3. Start client (Terminal 2)
-python client.py
+```
+export PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=$PYTHONPATH:.
+```
 
-# 4. Try the web demo (Optional)
+**Important**: These environment variables must be set from the root directory of the project to ensure proper module imports and clean Python execution.
+
+**Run the Protocol**
+
+```
+# 1. Start server (Terminal 1)
+python protocols/streamable_http/server.py
+
+# 2. Start client (Terminal 2)
+python protocols/streamable_http/client.py
+```
+
+**Optional: Try the web demo**
+```
 # Visit http://localhost:8000/demo
 ```
 
@@ -270,186 +287,3 @@ You › /server
  Framework: FastAPI + HTTP Streaming                         
 ────────────────────────────────────────────────────────────
 ```
-
-## Technical Implementation
-
-### HTTP Streaming Architecture
-- **FastAPI + StreamingResponse**: High-performance async HTTP streaming implementation
-- **Chunked Transfer Encoding**: Standard HTTP/1.1 streaming without custom protocols
-- **NDJSON Format**: Newline-delimited JSON for structured streaming data
-- **Connection Pool Management**: Efficient handling of multiple concurrent streams
-- **Stream State Tracking**: Comprehensive monitoring of active connections and sessions
-
-### Streaming Protocol Details
-- **Standard HTTP**: Compatible with any HTTP client, no special libraries required
-- **Transfer-Encoding: chunked**: Enables real-time streaming without Content-Length
-- **NDJSON**: Each line is a complete JSON object for easy parsing
-- **Error Recovery**: Graceful handling of connection drops and stream interruptions
-- **Flow Control**: Optimized chunk timing for natural reading experience
-
-### Multi-turn Architecture
-- **ChatSession Class**: Manages conversation context and history during streaming
-- **Session Storage**: In-memory session management with UUID identification
-- **Context Preservation**: Full conversation history maintained per streaming session
-- **Automatic Lifecycle**: Sessions created on-demand, persist until deleted
-
-### Performance Features
-- **Async Processing**: Non-blocking stream handling for multiple concurrent users
-- **Memory Efficient**: Optimized stream buffering and connection management
-- **Real-time Monitoring**: Live statistics for streams, sessions, and performance
-- **Connection Resilience**: Automatic cleanup and resource management
-- **Scalable Architecture**: Designed for multiple concurrent streaming sessions
-
-### Technology Stack
-- **FastAPI**: Modern async web framework with automatic OpenAPI generation
-- **StreamingResponse**: Built-in FastAPI streaming support for HTTP chunked encoding
-- **Pydantic**: Type-safe request/response validation and serialization
-- **Uvicorn**: High-performance ASGI server with streaming support
-- **Colorama**: Cross-platform colored console output for enhanced UX
-- **GenAI Client**: Google GenAI integration with context management
-
-## Stream Lifecycle
-
-1. **Initiation**: Client sends POST request to `/chat/stream` with message and optional session_id
-2. **Session Setup**: Server creates or retrieves session, establishes HTTP streaming response
-3. **Context Loading**: Full conversation history loaded for multi-turn awareness
-4. **Response Generation**: AI processes message with full conversation context
-5. **Chunk Streaming**: Response delivered in real-time via HTTP chunked transfer encoding
-6. **Stream Completion**: Final NDJSON object sent with completion statistics and session info
-7. **Connection Cleanup**: Resources released, session state updated, statistics logged
-
-## HTTP Stream Flow
-
-```
-Client Request → HTTP Stream Response → Session Info JSON → Status JSON
-     ↓
-Processing Start → Chunk JSONs (real-time) → Completion JSON
-     ↓
-Connection Close → Statistics Update → Session State Saved
-```
-
-## Browser Compatibility
-
-The HTTP streaming implementation is compatible with:
-- **Fetch API**: Native browser support for streaming HTTP responses
-- **XMLHttpRequest**: Traditional AJAX with chunked response handling
-- **ReadableStream**: Modern streaming API for real-time data processing
-- **HTTP/1.1 & HTTP/2**: Compatible with all modern HTTP versions
-- **Universal Support**: Works with any HTTP client library
-
-## Interactive Demo Features
-
-The built-in web demo (`/demo`) provides:
-- **Real-time Chat Interface**: Full-featured web-based chat with HTTP streaming
-- **Session Management**: Create, switch, and manage sessions through web UI
-- **Visual Stream Indicators**: Live progress and streaming status display
-- **Chunk-by-chunk Display**: Watch responses build up via NDJSON parsing
-- **Error Handling**: Visual error states and recovery options
-- **Mobile Responsive**: Works on desktop, tablet, and mobile devices
-
-## Development Features
-
-- **Hot Reload**: Development server supports code changes without losing sessions
-- **Comprehensive Logging**: Detailed stream lifecycle and performance monitoring
-- **Error Handling**: Graceful degradation and informative error messages
-- **Debug Information**: Rich console output for troubleshooting and monitoring
-- **Testing Tools**: Built-in demo and debug endpoints for development
-
-## HTTP Streaming vs Other Protocols
-
-| Feature | Traditional HTTP | HTTP Streaming | Server-Sent Events | WebSockets |
-|---------|------------------|----------------|-------------------|------------|
-| Protocol | HTTP/1.1 | HTTP/1.1 + Chunked | HTTP + SSE | WebSocket |
-| Complexity | Simple | Simple | Medium | Complex |
-| Browser Support | Universal | Universal | Modern | Modern |
-| Real-time | No | Yes | Yes | Yes |
-| Bi-directional | No | No | No | Yes |
-| Overhead | Low | Low | Medium | Medium |
-| Firewall Friendly | Yes | Yes | Yes | Sometimes |
-
-## Performance Characteristics
-
-- **First Chunk Latency**: ~100-200ms from request
-- **Chunk Frequency**: 3-5 words every 100ms (configurable)
-- **Memory Usage**: Minimal buffering, immediate delivery via HTTP chunks
-- **Concurrent Streams**: Supports multiple simultaneous users
-- **Connection Overhead**: Standard HTTP connection reuse
-- **Error Recovery**: HTTP-level error handling and retry mechanisms
-
-## HTTP Headers and Protocol Details
-
-### Request Example
-```http
-POST /chat/stream HTTP/1.1
-Host: localhost:8000
-Content-Type: application/json
-Accept: application/x-ndjson
-Content-Length: 45
-
-{"message": "Hello", "session_id": "abc123"}
-```
-
-### Response Example
-```http
-HTTP/1.1 200 OK
-Content-Type: application/x-ndjson
-Transfer-Encoding: chunked
-Cache-Control: no-cache
-Connection: keep-alive
-
-{"type": "session_info", "session_id": "abc123", "model": "gemini-2.0-flash"}
-{"type": "status", "message": "Generating response...", "context_messages": 2}
-{"type": "chunk", "text": "Hello there!", "chunk_number": 1, "is_final": false}
-{"type": "complete", "total_chunks": 1, "processing_time": 0.5, "message_count": 4}
-```
-
-## Client Implementation Examples
-
-### Python (requests)
-```python
-response = requests.post('/chat/stream', json={'message': 'Hello'}, stream=True)
-for line in response.iter_lines(decode_unicode=True):
-    if line:
-        data = json.loads(line)
-        if data['type'] == 'chunk':
-            print(data['text'], end='', flush=True)
-```
-
-### JavaScript (fetch)
-```javascript
-const response = await fetch('/chat/stream', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({message: 'Hello'})
-});
-
-const reader = response.body.getReader();
-const decoder = new TextDecoder();
-
-while (true) {
-    const {done, value} = await reader.read();
-    if (done) break;
-    
-    const chunk = decoder.decode(value, {stream: true});
-    const lines = chunk.split('\n');
-    
-    for (let line of lines) {
-        if (line.trim()) {
-            const data = JSON.parse(line);
-            if (data.type === 'chunk') {
-                console.log(data.text);
-            }
-        }
-    }
-}
-```
-
-## Advantages of HTTP Streaming
-
-- **Universal Compatibility**: Works with any HTTP client
-- **Simple Protocol**: Standard HTTP with chunked encoding
-- **Firewall Friendly**: Uses standard HTTP ports and protocols
-- **Easy Debugging**: Standard HTTP tools work for debugging
-- **No Special Libraries**: Client implementation is straightforward
-- **Robust Error Handling**: HTTP-level error codes and handling
-- **Caching Friendly**: Can leverage HTTP caching mechanisms where appropriate
