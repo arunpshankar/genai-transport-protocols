@@ -41,14 +41,14 @@ current_session = {
 
 def print_banner():
     banner = f"""
-{Fore.MAGENTA}╔══════════════════════════════════════════════════════════════╗
-║               💬 HTTP REST MULTI-TURN CHAT CLIENT 💬           ║
-╠══════════════════════════════════════════════════════════════╣
-║  Server: {SERVER_URL:<47} ║
-║  Framework: FastAPI{' ' * 41} ║
-║  Multi-turn: {Fore.GREEN}ENABLED{Fore.MAGENTA}{' ' * 39} ║
-║  Status: {Fore.GREEN}CONNECTING...{Fore.MAGENTA}{' ' * 39} ║
-╚══════════════════════════════════════════════════════════════╝{Style.RESET_ALL}
+{Fore.MAGENTA}══════════════════════════════════════════════════════════════
+               💬 HTTP REST MULTI-TURN CHAT CLIENT 💬           
+══════════════════════════════════════════════════════════════
+  Server: {SERVER_URL:<47} 
+  Framework: FastAPI{' ' * 41} 
+  Multi-turn: {Fore.GREEN}ENABLED{Fore.MAGENTA}{' ' * 39} 
+  Status: {Fore.GREEN}CONNECTING...{Fore.MAGENTA}{' ' * 39} 
+══════════════════════════════════════════════════════════════{Style.RESET_ALL}
 """
     print(banner)
 
