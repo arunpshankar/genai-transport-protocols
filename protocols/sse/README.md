@@ -4,32 +4,42 @@ Real-time streaming multi-turn chat server and client implementation with Server
 
 ## Quick Start
 
+**Prerequisites**
+
 ```bash
-# 1. Install dependencies
 pip install -r requirements.txt
+export GENAI_MODEL_ID="gemini-2.0-flash"  # Optional, defaults to gemini-2.0-flash
+```
 
-# 2. Start server (Terminal 1)
-python server.py
+**Initial Setup**
 
-# 3. Start client (Terminal 2)
-python client.py
+**Before running any server.py, execute these commands from the project root:**
 
-# 4. Try the web demo (Optional)
+```bash
+export PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=$PYTHONPATH:.
+```
+
+**Important**: These environment variables must be set from the root directory of the project to ensure proper module imports and clean Python execution.
+
+**Run the Protocol**
+
+```bash
+# 1. Start server (Terminal 1)
+python protocols/sse/server.py
+
+# 2. Start client (Terminal 2)
+python protocols/sse/client.py
+```
+
+**Optional: Try the web demo**
+
+```bash
 # Visit http://localhost:8000/demo
 ```
 
 **Server**: http://localhost:8000  
 **API Docs**: http://localhost:8000/docs  
 **SSE Demo**: http://localhost:8000/demo
-
-## Real-time Streaming Features
-
-- **Live Response Streaming**: AI responses appear word-by-word as they're generated
-- **Server-Sent Events**: Efficient real-time communication using SSE protocol
-- **Multi-turn Context**: Persistent conversation history across streaming responses
-- **Session Management**: Independent streaming conversations with context preservation
-- **Connection Monitoring**: Real-time tracking of active streams and connections
-- **Chunk-based Delivery**: Responses delivered in optimized chunks for smooth streaming
 
 ## Server Implementation
 
@@ -97,19 +107,14 @@ python client.py
 The streaming endpoint emits different event types:
 
 ```json
-// Session information
 {"type": "session_info", "session_id": "...", "model": "gemini-2.0-flash"}
 
-// Processing status
 {"type": "status", "message": "Generating response...", "context_messages": 4}
 
-// Response chunks (streamed in real-time)
 {"type": "chunk", "text": "Hello there!", "chunk_number": 1, "is_final": false}
 
-// Stream completion
 {"type": "complete", "total_chunks": 15, "processing_time": 2.34, "message_count": 8}
 
-// Error handling
 {"type": "error", "message": "Error description", "session_id": "..."}
 ```
 
@@ -124,34 +129,34 @@ export GENAI_MODEL_ID="your-model-id"  # Default: gemini-2.0-flash
 
 ### SSE Server Logs
 ```
-╔══════════════════════════════════════════════════════════════╗
-║               🌊 FASTAPI SSE MULTI-TURN CHAT SERVER 🌊        ║
-╠══════════════════════════════════════════════════════════════╣
-║  Model: gemini-2.0-flash                                      ║
-║  Framework: FastAPI + SSE                                     ║
-║  Multi-turn: ENABLED                                          ║
-║  Streaming: REAL-TIME                                         ║
-║  Status: READY                                                ║
-╚══════════════════════════════════════════════════════════════╝
+══════════════════════════════════════════════════════════════
+               🌊 FASTAPI SSE MULTI-TURN CHAT SERVER 🌊        
+══════════════════════════════════════════════════════════════
+  Model: gemini-2.0-flash                                      
+  Framework: FastAPI + SSE                                     
+  Multi-turn: ENABLED                                          
+  Streaming: REAL-TIME                                         
+  Status: READY                                                
+══════════════════════════════════════════════════════════════
 
-┌─ 🌊 SSE STREAM STARTED [14:32:15.123] ──────────────────────────┐
-│ Client IP: 127.0.0.1                                            │
-│ Session: a1b2c3d4...                                           │
-│ Message: "Explain quantum computing"                            │
-│ Active Streams: 1                                              │
-└────────────────────────────────────────────────────────────┘
+─ 🌊 SSE STREAM STARTED [14:32:15.123] ───────────────────────
+ Client IP: 127.0.0.1                                          
+ Session: a1b2c3d4...                                         
+ Message: "Explain quantum computing"                          
+ Active Streams: 1                                            
+────────────────────────────────────────────────────────────
 
 🌊 [14:32:15.456] Chunk #1: "Quantum computing is a..."
 🌊 [14:32:15.523] Chunk #2: "revolutionary approach to..."
 🌊 [14:32:15.598] Chunk #3: "information processing that..."
 
-┌─ 🌊 SSE STREAM COMPLETED [14:32:17.234] ────────────────────────┐
-│ Session: a1b2c3d4...                                           │
-│ Total Chunks: 23                                              │
-│ Total Time: 2.111s                                            │
-│ Active Streams: 0                                             │
-│ Status: SUCCESS                                               │
-└────────────────────────────────────────────────────────────┘
+─ 🌊 SSE STREAM COMPLETED [14:32:17.234] ──────────────────────
+ Session: a1b2c3d4...                                         
+ Total Chunks: 23                                            
+ Total Time: 2.111s                                          
+ Active Streams: 0                                           
+ Status: SUCCESS                                              
+────────────────────────────────────────────────────────────
 ```
 
 ### Real-time Client Interface
@@ -174,95 +179,10 @@ computers use quantum bits or "qubits" that can exist in multiple
 states simultaneously through a property called superposition...
 ────────────────────────────────────────────────────────────
 
-┌─ 🌊 SSE STREAM COMPLETED [14:32:17.234] ──────────────────────┐
-│ Total Chunks: 23                                              │
-│ Total Time: 2.111s                                            │
-│ Context Messages: 8                                           │
-│ Status: SUCCESS                                                │
-└────────────────────────────────────────────────────────────┘
-```
-
-### Interactive Web Demo
-```
-You › /demo
-🌊 Opening SSE demo page in your browser...
-   URL: http://localhost:8000/demo
-
-# Browser opens with interactive chat interface
-# Real-time streaming visible in web UI with:
-# - Live text appearing as it's generated
-# - Session management through web interface  
-# - Visual indicators for streaming status
-# - Chunk-by-chunk progress display
-```
-
-### Session Management During Streaming
-```
-You [a1b2c3d4...] › /info
-
-┌─ 📋 SESSION INFO ────────────────────────────────────────────┐
-│ Session ID: a1b2c3d4...                                      │
-│ Model: gemini-2.0-flash                                      │
-│ Total Messages: 8                                            │
-│ User Messages: 4                                             │
-│ AI Messages: 4                                               │
-│ Duration: 0:05:23                                            │
-│ Created: 14:26:52                                            │
-└──────────────────────────────────────────────────────────────┘
-
-You › /sessions
-
-┌─ 📋 ALL ACTIVE SESSIONS (3) ────────────────────────────────┐
-│ 1. a1b2c3d4... (8 msgs, 0:05:23, 14:26:52) ← CURRENT       │
-│ 2. e5f6g7h8... (12 msgs, 0:12:45, 14:15:30)                │
-│ 3. i9j0k1l2... (3 msgs, 0:02:10, 14:30:15)                 │
-└──────────────────────────────────────────────────────────────┘
-
-You › /new
-✨ New session created successfully!
-   Session ID: m3n4o5p6...
-   Model: gemini-2.0-flash
-
-You [m3n4o5p6...] › Hello! This is a brand new streaming conversation
-💭 Generating response... (Context: 1 messages)
-
-🤖 AI Response (Streaming) (m3n4o5p6... - gemini-2.0-flash)
+─ 🌊 SSE STREAM COMPLETED [14:32:17.234] ──────────────────────
+ Total Chunks: 23                                            
+ Total Time: 2.111s                                          
+ Context Messages: 8                                         
+ Status: SUCCESS                                              
 ────────────────────────────────────────────────────────────
-Hello! Welcome to our new streaming conversation! I'm excited 
-to chat with you in real-time. You'll see my responses appear 
-word by word as I generate them. What would you like to...
-────────────────────────────────────────────────────────────
-```
-
-### Streaming Statistics
-```
-You › /stats
-
-┌─ 📊 CLIENT SESSION STATISTICS ──────────────────────────────┐
-│ Client Session Duration: 0:15:23                             │
-│ Messages Sent: 12                                           │
-│ Successful Streams: 11                                      │
-│ Failed Streams: 1                                           │
-│ Total Chunks Received: 267                                  │
-│ Avg Chunks per Stream: 24.3                                │
-│ Sessions Created: 2                                         │
-│ Avg Response Time: 2.456s                                  │
-│ Current Session: a1b2c3d4...                               │
-│ Session Messages: 8                                         │
-└────────────────────────────────────────────────────────────┘
-
-You › /server
-
-┌─ 🖥️  SSE SERVER STATISTICS ──────────────────────────────────┐
-│ Server Uptime: 1:23:45                                      │
-│ Total Requests: 47                                          │
-│ Successful: 45                                              │
-│ Failed: 2                                                   │
-│ Active Sessions: 3                                          │
-│ Active Streams: 0                                           │
-│ Total Sessions Created: 8                                   │
-│ Avg Response Time: 2.234s                                  │
-│ Model: gemini-2.0-flash                                     │
-│ Framework: FastAPI + SSE                                    │
-└────────────────────────────────────────────────────────────┘
 ```
