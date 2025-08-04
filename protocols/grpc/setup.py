@@ -1,4 +1,12 @@
-#!/usr/bin/env python3
+from pathlib import Path
+import subprocess
+import sys
+import os
+from colorama import Fore, Back, Style, init
+
+# Initialize colorama for cross-platform colored output
+init(autoreset=True)
+
 """
 gRPC Multi-turn Chat Setup Script
 
@@ -9,22 +17,22 @@ This script handles the complete setup for the gRPC implementation:
 4. Verify setup
 """
 
-import subprocess
-import sys
-import os
-from pathlib import Path
 
 def check_python_version():
-    """Check if Python version is compatible"""
+    """
+    Check if Python version is compatible
+    """
     if sys.version_info < (3, 8):
-        print("❌ Python 3.8 or higher is required")
+        print(f"{Fore.RED}❌ Python 3.8 or higher is required{Style.RESET_ALL}")
         return False
-    print(f"✅ Python {sys.version_info.major}.{sys.version_info.minor} detected")
+    print(f"{Fore.GREEN}✅ Python {sys.version_info.major}.{sys.version_info.minor} detected{Style.RESET_ALL}")
     return True
 
 def install_dependencies():
-    """Install required dependencies"""
-    print("📦 Installing gRPC dependencies...")
+    """
+    Install required dependencies
+    """
+    print(f"{Fore.YELLOW}📦 Installing gRPC dependencies...{Style.RESET_ALL}")
     
     dependencies = [
         "grpcio>=1.60.0",
@@ -35,27 +43,29 @@ def install_dependencies():
     
     try:
         for dep in dependencies:
-            print(f"  Installing {dep}...")
+            print(f"{Fore.CYAN}  Installing {dep}...{Style.RESET_ALL}")
             subprocess.check_call([
                 sys.executable, "-m", "pip", "install", dep
             ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         
-        print("✅ Dependencies installed successfully")
+        print(f"{Fore.GREEN}✅ Dependencies installed successfully{Style.RESET_ALL}")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to install dependencies: {e}")
+        print(f"{Fore.RED}❌ Failed to install dependencies: {e}{Style.RESET_ALL}")
         return False
 
 def create_proto_file():
-    """Create the proto file if it doesn't exist"""
+    """
+    Create the proto file if it doesn't exist
+    """
     current_dir = Path(__file__).parent
     proto_file = current_dir / "chat.proto"
     
     if proto_file.exists():
-        print(f"✅ Proto file already exists: {proto_file.name}")
+        print(f"{Fore.GREEN}✅ Proto file already exists: {proto_file.name}{Style.RESET_ALL}")
         return True
     
-    print(f"📝 Creating proto file: {proto_file.name}")
+    print(f"{Fore.YELLOW}📝 Creating proto file: {proto_file.name}{Style.RESET_ALL}")
     
     proto_content = '''syntax = "proto3";
 
@@ -224,22 +234,24 @@ message HealthResponse {
     try:
         with open(proto_file, 'w') as f:
             f.write(proto_content)
-        print(f"✅ Proto file created: {proto_file.name}")
+        print(f"{Fore.GREEN}✅ Proto file created: {proto_file.name}{Style.RESET_ALL}")
         return True
     except Exception as e:
-        print(f"❌ Failed to create proto file: {e}")
+        print(f"{Fore.RED}❌ Failed to create proto file: {e}{Style.RESET_ALL}")
         return False
 
 def generate_grpc_code():
-    """Generate gRPC Python code from proto file"""
+    """
+    Generate gRPC Python code from proto file
+    """
     current_dir = Path(__file__).parent
     proto_file = current_dir / "chat.proto"
     
     if not proto_file.exists():
-        print(f"❌ Proto file not found: {proto_file}")
+        print(f"{Fore.RED}❌ Proto file not found: {proto_file}{Style.RESET_ALL}")
         return False
     
-    print(f"🔧 Generating gRPC code from {proto_file.name}...")
+    print(f"{Fore.YELLOW}🔧 Generating gRPC code from {proto_file.name}...{Style.RESET_ALL}")
     
     try:
         cmd = [
@@ -258,25 +270,27 @@ def generate_grpc_code():
             grpc_file = current_dir / "chat_pb2_grpc.py"
             
             if pb2_file.exists() and grpc_file.exists():
-                print(f"✅ Generated: {pb2_file.name}")
-                print(f"✅ Generated: {grpc_file.name}")
+                print(f"{Fore.GREEN}✅ Generated: {pb2_file.name}{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}✅ Generated: {grpc_file.name}{Style.RESET_ALL}")
                 return True
             else:
-                print("❌ Generated files not found")
+                print(f"{Fore.RED}❌ Generated files not found{Style.RESET_ALL}")
                 return False
         else:
-            print(f"❌ Error generating gRPC code:")
+            print(f"{Fore.RED}❌ Error generating gRPC code:{Style.RESET_ALL}")
             if result.stderr:
-                print(f"STDERR: {result.stderr}")
+                print(f"{Fore.RED}STDERR: {result.stderr}{Style.RESET_ALL}")
             return False
             
     except Exception as e:
-        print(f"❌ Error generating gRPC code: {e}")
+        print(f"{Fore.RED}❌ Error generating gRPC code: {e}{Style.RESET_ALL}")
         return False
 
 def verify_setup():
-    """Verify that the setup is complete and working"""
-    print("🔍 Verifying gRPC setup...")
+    """
+    Verify that the setup is complete and working
+    """
+    print(f"{Fore.YELLOW}🔍 Verifying gRPC setup...{Style.RESET_ALL}")
     
     current_dir = Path(__file__).parent
     
@@ -293,13 +307,13 @@ def verify_setup():
     for filename in required_files:
         file_path = current_dir / filename
         if file_path.exists():
-            print(f"  ✅ {filename}")
+            print(f"{Fore.GREEN}  ✅ {filename}{Style.RESET_ALL}")
         else:
-            print(f"  ❌ {filename}")
+            print(f"{Fore.RED}  ❌ {filename}{Style.RESET_ALL}")
             missing_files.append(filename)
     
     if missing_files:
-        print(f"❌ Missing files: {', '.join(missing_files)}")
+        print(f"{Fore.RED}❌ Missing files: {', '.join(missing_files)}{Style.RESET_ALL}")
         return False
     
     # Test imports
@@ -307,48 +321,48 @@ def verify_setup():
         import grpc
         import chat_pb2
         import chat_pb2_grpc
-        print("✅ All imports working")
+        print(f"{Fore.GREEN}✅ All imports working{Style.RESET_ALL}")
     except ImportError as e:
-        print(f"❌ Import error: {e}")
+        print(f"{Fore.RED}❌ Import error: {e}{Style.RESET_ALL}")
         return False
     
-    print("✅ gRPC setup verification complete!")
+    print(f"{Fore.GREEN}✅ gRPC setup verification complete!{Style.RESET_ALL}")
     return True
 
 def print_banner():
     """Print setup banner"""
-    print("""
-╔══════════════════════════════════════════════════════════════╗
+    print(f"""
+{Fore.GREEN}╔══════════════════════════════════════════════════════════════╗
 ║               🚀 GRPC MULTI-TURN CHAT SETUP 🚀               ║
 ╠══════════════════════════════════════════════════════════════╣
 ║  Protocol: gRPC + Protocol Buffers                          ║
 ║  Framework: High-performance bidirectional streaming        ║
 ║  Type Safety: Strongly-typed Protocol Buffers               ║
 ║  Performance: Optimized for production workloads            ║
-╚══════════════════════════════════════════════════════════════╝
+╚══════════════════════════════════════════════════════════════╝{Style.RESET_ALL}
 """)
 
 def print_usage_instructions():
     """Print usage instructions after successful setup"""
-    print("""
-🎉 gRPC Multi-turn Chat Setup Complete!
+    print(f"""
+{Fore.GREEN}🎉 gRPC Multi-turn Chat Setup Complete!{Style.RESET_ALL}
 
-📋 Next Steps:
+{Fore.YELLOW}📋 Next Steps:{Style.RESET_ALL}
 
-1. Start the gRPC server:
+{Fore.CYAN}1. Start the gRPC server:{Style.RESET_ALL}
    python protocols/grpc/server.py
 
-2. In another terminal, start the client:
+{Fore.CYAN}2. In another terminal, start the client:{Style.RESET_ALL}
    python protocols/grpc/client.py
 
-3. Try these commands in the client:
+{Fore.CYAN}3. Try these commands in the client:{Style.RESET_ALL}
    /help      - Show all commands
    /new       - Create a new session
    /sessions  - List active sessions
    /stats     - Show statistics
    /server    - Show server stats
 
-🚀 Features Available:
+{Fore.MAGENTA}🚀 Features Available:{Style.RESET_ALL}
 • High-performance bidirectional streaming
 • Multi-turn context preservation
 • Type-safe Protocol Buffers communication
@@ -356,33 +370,60 @@ def print_usage_instructions():
 • Comprehensive session management
 • Production-ready error handling
 
-📖 For more information, see the README.md file.
+{Fore.CYAN}📖 For more information, see the README.md file.{Style.RESET_ALL}
 """)
+
+def print_setup_progress():
+    """Print setup progress info"""
+    print(f"\n{Fore.CYAN}┌─ 🔧 GRPC SETUP PROGRESS ─────────────────────────────────────┐{Style.RESET_ALL}")
+    print(f"  Phase 1: Checking Python version compatibility")
+    print(f"  Phase 2: Installing required dependencies")
+    print(f"  Phase 3: Creating Protocol Buffer definitions")
+    print(f"  Phase 4: Generating gRPC Python code")
+    print(f"  Phase 5: Verifying complete setup")
+    print(f"{Fore.CYAN}└──────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
+
+def print_completion_summary():
+    """Print completion summary"""
+    print(f"\n{Fore.GREEN}┌─ ✅ SETUP COMPLETED SUCCESSFULLY ───────────────────────────────┐{Style.RESET_ALL}")
+    print(f"  Protocol Buffers: chat.proto")
+    print(f"  Generated Code: chat_pb2.py, chat_pb2_grpc.py")
+    print(f"  Server: server.py")
+    print(f"  Client: client.py")
+    print(f"  Dependencies: grpcio, grpcio-tools, protobuf, colorama")
+    print(f"{Fore.GREEN}└──────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def main():
     """Main setup function"""
     print_banner()
+    print_setup_progress()
     
     # Check Python version
+    print(f"\n{Fore.YELLOW}Phase 1: Checking Python compatibility...{Style.RESET_ALL}")
     if not check_python_version():
         return 1
     
     # Install dependencies
+    print(f"\n{Fore.YELLOW}Phase 2: Installing dependencies...{Style.RESET_ALL}")
     if not install_dependencies():
         return 1
     
     # Create proto file
+    print(f"\n{Fore.YELLOW}Phase 3: Setting up Protocol Buffers...{Style.RESET_ALL}")
     if not create_proto_file():
         return 1
     
     # Generate gRPC code
+    print(f"\n{Fore.YELLOW}Phase 4: Generating gRPC code...{Style.RESET_ALL}")
     if not generate_grpc_code():
         return 1
     
     # Verify setup
+    print(f"\n{Fore.YELLOW}Phase 5: Verifying setup...{Style.RESET_ALL}")
     if not verify_setup():
         return 1
     
+    print_completion_summary()
     print_usage_instructions()
     return 0
 

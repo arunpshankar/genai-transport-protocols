@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 import threading
 import asyncio
 import json
-import logging
 from typing import Dict, List, Optional, AsyncGenerator
 import sys
 import os
@@ -25,14 +24,6 @@ init(autoreset=True)
 import chat_pb2
 import chat_pb2_grpc
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] [%(name)s] [%(filename)s:%(lineno)d]: %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-logger = logging.getLogger(__name__)
-
 class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
     def __init__(self):
         self.sessions: Dict[str, ChatSession] = {}
@@ -50,9 +41,9 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
         # Setup GenAI client
         try:
             self.genai_client = initialize_genai_client()
-            logger.info("GenAI client initialized successfully for gRPC server")
+            print(f"{Fore.GREEN}✅ GenAI client initialized successfully for gRPC server{Style.RESET_ALL}")
         except Exception as e:
-            logger.error(f"Failed to initialize GenAI client: {e}")
+            print(f"{Fore.RED}❌ Failed to initialize GenAI client: {e}{Style.RESET_ALL}")
             raise
 
     def print_banner(self):
@@ -73,32 +64,32 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
         print(f"{Fore.CYAN}🔧 Use Ctrl+C to stop the server{Style.RESET_ALL}")
         print()
 
-    def log_request(self, method: str, session_id: str = None, message: str = None):
-        """Log incoming gRPC requests"""
+    def print_request(self, method: str, session_id: str = None, message: str = None):
+        """Print incoming gRPC requests info"""
         timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
         
         print(f"\n{Fore.BLUE}┌─ 📨 GRPC REQUEST [{timestamp}] ────────────────────────────────┐{Style.RESET_ALL}")
-        print(f"{Fore.BLUE}│{Style.RESET_ALL} Method: {Fore.CYAN}{method}{Style.RESET_ALL}")
+        print(f"  Method: {Fore.CYAN}{method}{Style.RESET_ALL}")
         if session_id:
-            print(f"{Fore.BLUE}│{Style.RESET_ALL} Session: {Fore.CYAN}{session_id[:8]}...{Style.RESET_ALL}")
+            print(f"  Session: {Fore.CYAN}{session_id[:8]}...{Style.RESET_ALL}")
         if message:
             preview = message[:40] + ('...' if len(message) > 40 else '')
-            print(f"{Fore.BLUE}│{Style.RESET_ALL} Message: {Fore.WHITE}\"{preview}\"{Style.RESET_ALL}")
+            print(f"  Message: {Fore.WHITE}\"{preview}\"{Style.RESET_ALL}")
         print(f"{Fore.BLUE}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
-    def log_response_start(self, session_id: str, context_messages: int):
-        """Log response generation start"""
+    def print_response_start(self, session_id: str, context_messages: int):
+        """Print response generation start info"""
         timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
         
         print(f"\n{Fore.GREEN}┌─ 🧠 GENERATING RESPONSE [{timestamp}] ────────────────────────┐{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}│{Style.RESET_ALL} Session: {Fore.CYAN}{session_id[:8]}...{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}│{Style.RESET_ALL} Context Messages: {context_messages}")
-        print(f"{Fore.GREEN}│{Style.RESET_ALL} Model: gemini-2.0-flash")
-        print(f"{Fore.GREEN}│{Style.RESET_ALL} Protocol: gRPC Stream")
+        print(f"  Session: {Fore.CYAN}{session_id[:8]}...{Style.RESET_ALL}")
+        print(f"  Context Messages: {context_messages}")
+        print(f"  Model: gemini-2.0-flash")
+        print(f"  Protocol: gRPC Stream")
         print(f"{Fore.GREEN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
-    def log_chunk_sent(self, chunk_num: int, chunk_text: str, session_id: str):
-        """Log individual chunks sent"""
+    def print_chunk_sent(self, chunk_num: int, chunk_text: str, session_id: str):
+        """Print individual chunks sent info"""
         timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
         preview = chunk_text[:30].replace('\n', ' ') + ('...' if len(chunk_text) > 30 else '')
         
@@ -112,7 +103,7 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
             session_id = str(uuid.uuid4())
             model_id = request.model_id or "gemini-2.0-flash"
             
-            self.log_request("CreateSession", message=f"Model: {model_id}")
+            self.print_request("CreateSession", message=f"Model: {model_id}")
             
             try:
                 # Create new chat session
@@ -135,7 +126,7 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
                 self.stats['active_sessions'] += 1
                 self.stats['successful_requests'] += 1
                 
-                logger.info(f"Created new session {session_id} with model {model_id}")
+                print(f"{Fore.GREEN}✨ Created new session {session_id[:8]}... with model {model_id}{Style.RESET_ALL}")
                 
                 return chat_pb2.CreateSessionResponse(
                     session_id=session_id,
@@ -146,7 +137,7 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
                 
             except Exception as e:
                 self.stats['failed_requests'] += 1
-                logger.error(f"Error creating session: {e}")
+                print(f"{Fore.RED}❌ Error creating session: {e}{Style.RESET_ALL}")
                 return chat_pb2.CreateSessionResponse(
                     session_id="",
                     model="",
@@ -160,7 +151,7 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
             self.stats['total_requests'] += 1
             
             session_id = request.session_id
-            self.log_request("GetSessionInfo", session_id)
+            self.print_request("GetSessionInfo", session_id)
             
             if session_id not in self.session_metadata:
                 self.stats['failed_requests'] += 1
@@ -189,7 +180,7 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
         """List all active sessions"""
         with self.lock:
             self.stats['total_requests'] += 1
-            self.log_request("ListSessions")
+            self.print_request("ListSessions")
             
             sessions = []
             for session_id, metadata in self.session_metadata.items():
@@ -215,7 +206,7 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
             self.stats['total_requests'] += 1
             
             session_id = request.session_id
-            self.log_request("DeleteSession", session_id)
+            self.print_request("DeleteSession", session_id)
             
             if session_id not in self.sessions:
                 self.stats['failed_requests'] += 1
@@ -229,7 +220,7 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
             self.stats['active_sessions'] -= 1
             self.stats['successful_requests'] += 1
             
-            logger.info(f"Deleted session {session_id}")
+            print(f"{Fore.GREEN}🗑️ Deleted session {session_id[:8]}...{Style.RESET_ALL}")
             
             return chat_pb2.DeleteSessionResponse(
                 success=True,
@@ -240,7 +231,7 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
         """Get server statistics"""
         with self.lock:
             self.stats['total_requests'] += 1
-            self.log_request("GetServerStats")
+            self.print_request("GetServerStats")
             
             uptime = datetime.now() - self.server_start_time
             avg_response_time = 0  # TODO: Implement response time tracking
@@ -299,7 +290,7 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
                         continue
                     
                     user_message = request.message
-                    self.log_request("Chat", session_id, user_message)
+                    self.print_request("Chat", session_id, user_message)
                     
                     # Update session metadata
                     with self.lock:
@@ -314,8 +305,8 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
                         context_messages=metadata['message_count']
                     )
                     
-                    # Log response generation start
-                    self.log_response_start(session_id, metadata['message_count'])
+                    # Print response generation start
+                    self.print_response_start(session_id, metadata['message_count'])
                     
                     # Send response start
                     yield chat_pb2.ChatResponse(
@@ -341,8 +332,8 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
                             # Add space after word (except for last word)
                             chunk_text = word + (" " if i < len(words) - 1 else "")
                             
-                            # Log chunk
-                            self.log_chunk_sent(chunk_count, chunk_text, session_id)
+                            # Print chunk info
+                            self.print_chunk_sent(chunk_count, chunk_text, session_id)
                             
                             # Send chunk
                             yield chat_pb2.ChatResponse(
@@ -371,22 +362,22 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
                             message_count=metadata['message_count']
                         )
                         
-                        # Log completion
+                        # Print completion info
                         timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
                         print(f"\n{Fore.GREEN}┌─ 🚀 GRPC RESPONSE COMPLETED [{timestamp}] ────────────────────┐{Style.RESET_ALL}")
-                        print(f"{Fore.GREEN}│{Style.RESET_ALL} Session: {Fore.CYAN}{session_id[:8]}...{Style.RESET_ALL}")
-                        print(f"{Fore.GREEN}│{Style.RESET_ALL} Total Chunks: {chunk_count}")
-                        print(f"{Fore.GREEN}│{Style.RESET_ALL} Processing Time: {Fore.YELLOW}{processing_time:.3f}s{Style.RESET_ALL}")
-                        print(f"{Fore.GREEN}│{Style.RESET_ALL} Context Messages: {metadata['message_count']}")
-                        print(f"{Fore.GREEN}│{Style.RESET_ALL} Protocol: gRPC Stream")
-                        print(f"{Fore.GREEN}│{Style.RESET_ALL} Status: {Fore.GREEN}SUCCESS{Style.RESET_ALL}")
+                        print(f"  Session: {Fore.CYAN}{session_id[:8]}...{Style.RESET_ALL}")
+                        print(f"  Total Chunks: {chunk_count}")
+                        print(f"  Processing Time: {Fore.YELLOW}{processing_time:.3f}s{Style.RESET_ALL}")
+                        print(f"  Context Messages: {metadata['message_count']}")
+                        print(f"  Protocol: gRPC Stream")
+                        print(f"  Status: {Fore.GREEN}SUCCESS{Style.RESET_ALL}")
                         print(f"{Fore.GREEN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
                         
                     except Exception as e:
                         with self.lock:
                             self.stats['failed_requests'] += 1
                         
-                        logger.error(f"Error generating response: {e}")
+                        print(f"{Fore.RED}❌ Error generating response: {e}{Style.RESET_ALL}")
                         yield chat_pb2.ChatResponse(
                             type=chat_pb2.ChatResponse.ERROR,
                             session_id=session_id,
@@ -394,7 +385,7 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
                         )
         
         except Exception as e:
-            logger.error(f"Error in chat stream: {e}")
+            print(f"{Fore.RED}❌ Error in chat stream: {e}{Style.RESET_ALL}")
             yield chat_pb2.ChatResponse(
                 type=chat_pb2.ChatResponse.ERROR,
                 error_message=f"Stream error: {str(e)}"
@@ -436,7 +427,6 @@ def main():
         print(f"\n{Fore.YELLOW}👋 gRPC server shutting down gracefully...{Style.RESET_ALL}")
     except Exception as e:
         print(f"{Fore.RED}❌ Error starting gRPC server: {e}{Style.RESET_ALL}")
-        logger.error(f"Server error: {e}")
 
 if __name__ == '__main__':
     main()

@@ -105,17 +105,17 @@ def check_server_health():
         print(f"{Fore.YELLOW}💡 Make sure the server is running: python protocols/grpc/server.py{Style.RESET_ALL}")
         return False
 
-def log_message_sent(message_type: str, content: str = ""):
-    """Log outgoing gRPC message"""
+def print_message_sent(message_type: str, content: str = ""):
+    """Print outgoing gRPC message info"""
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     safe_print(f"\n{Fore.BLUE}┌─ 📤 GRPC MESSAGE SENT [{timestamp}] ──────────────────────────┐{Style.RESET_ALL}")
-    safe_print(f"{Fore.BLUE}│{Style.RESET_ALL} Type: {message_type}")
-    safe_print(f"{Fore.BLUE}│{Style.RESET_ALL} Session: {Fore.CYAN}{current_session['session_id'][:8] if current_session['session_id'] else 'None'}...{Style.RESET_ALL}")
+    safe_print(f"  Type: {message_type}")
+    safe_print(f"  Session: {Fore.CYAN}{current_session['session_id'][:8] if current_session['session_id'] else 'None'}...{Style.RESET_ALL}")
     
     if content:
         preview = content[:40] + ('...' if len(content) > 40 else '')
-        safe_print(f"{Fore.BLUE}│{Style.RESET_ALL} Message: {Fore.WHITE}\"{preview}\"{Style.RESET_ALL}")
+        safe_print(f"  Message: {Fore.WHITE}\"{preview}\"{Style.RESET_ALL}")
     
     safe_print(f"{Fore.BLUE}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
@@ -137,25 +137,25 @@ def print_session_stats():
                  if session_stats['total_streams'] > 0 else 0)
     
     print(f"\n{Fore.MAGENTA}┌─ 📊 CLIENT SESSION STATISTICS ──────────────────────────────┐{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Client Session Duration: {str(uptime).split('.')[0]}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Messages Sent: {Fore.YELLOW}{session_stats['messages_sent']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Successful Streams: {Fore.GREEN}{session_stats['successful_requests']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Failed Streams: {Fore.RED}{session_stats['failed_requests']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Total Chunks Received: {Fore.CYAN}{session_stats['total_chunks_received']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Avg Chunks per Stream: {Fore.CYAN}{avg_chunks:.1f}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Connection Attempts: {Fore.YELLOW}{session_stats['connection_attempts']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Reconnections: {Fore.YELLOW}{session_stats['reconnections']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Sessions Created: {Fore.CYAN}{session_stats['sessions_created']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Avg Response Time: {Fore.YELLOW}{avg_response_time:.3f}s{Style.RESET_ALL}")
+    print(f"  Client Session Duration: {str(uptime).split('.')[0]}")
+    print(f"  Messages Sent: {Fore.YELLOW}{session_stats['messages_sent']}{Style.RESET_ALL}")
+    print(f"  Successful Streams: {Fore.GREEN}{session_stats['successful_requests']}{Style.RESET_ALL}")
+    print(f"  Failed Streams: {Fore.RED}{session_stats['failed_requests']}{Style.RESET_ALL}")
+    print(f"  Total Chunks Received: {Fore.CYAN}{session_stats['total_chunks_received']}{Style.RESET_ALL}")
+    print(f"  Avg Chunks per Stream: {Fore.CYAN}{avg_chunks:.1f}{Style.RESET_ALL}")
+    print(f"  Connection Attempts: {Fore.YELLOW}{session_stats['connection_attempts']}{Style.RESET_ALL}")
+    print(f"  Reconnections: {Fore.YELLOW}{session_stats['reconnections']}{Style.RESET_ALL}")
+    print(f"  Sessions Created: {Fore.CYAN}{session_stats['sessions_created']}{Style.RESET_ALL}")
+    print(f"  Avg Response Time: {Fore.YELLOW}{avg_response_time:.3f}s{Style.RESET_ALL}")
     
     connection_status = f"{Fore.GREEN}Connected{Style.RESET_ALL}" if current_session['is_connected'] else f"{Fore.RED}Disconnected{Style.RESET_ALL}"
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} gRPC Status: {connection_status}")
+    print(f"  gRPC Status: {connection_status}")
     
     if current_session['session_id']:
-        print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Current Session: {Fore.CYAN}{current_session['session_id'][:8]}...{Style.RESET_ALL}")
-        print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Session Messages: {Fore.CYAN}{current_session['message_count']}{Style.RESET_ALL}")
+        print(f"  Current Session: {Fore.CYAN}{current_session['session_id'][:8]}...{Style.RESET_ALL}")
+        print(f"  Session Messages: {Fore.CYAN}{current_session['message_count']}{Style.RESET_ALL}")
     else:
-        print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Current Session: {Fore.RED}None{Style.RESET_ALL}")
+        print(f"  Current Session: {Fore.RED}None{Style.RESET_ALL}")
     
     print(f"{Fore.MAGENTA}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
@@ -191,15 +191,15 @@ def get_server_stats():
         uptime_str = str(timedelta(seconds=response.uptime_seconds))
         
         print(f"\n{Fore.CYAN}┌─ 🖥️  GRPC SERVER STATISTICS ─────────────────────────────────┐{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Server Uptime: {uptime_str}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Total Requests: {Fore.YELLOW}{response.total_requests}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Successful: {Fore.GREEN}{response.successful_requests}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Failed: {Fore.RED}{response.failed_requests}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Active Sessions: {Fore.MAGENTA}{response.active_sessions}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Total Sessions Created: {Fore.MAGENTA}{response.total_sessions_created}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Avg Response Time: {Fore.YELLOW}{response.average_response_time:.3f}s{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Model: {Fore.MAGENTA}{response.model}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Framework: {Fore.MAGENTA}{response.framework}{Style.RESET_ALL}")
+        print(f"  Server Uptime: {uptime_str}")
+        print(f"  Total Requests: {Fore.YELLOW}{response.total_requests}{Style.RESET_ALL}")
+        print(f"  Successful: {Fore.GREEN}{response.successful_requests}{Style.RESET_ALL}")
+        print(f"  Failed: {Fore.RED}{response.failed_requests}{Style.RESET_ALL}")
+        print(f"  Active Sessions: {Fore.MAGENTA}{response.active_sessions}{Style.RESET_ALL}")
+        print(f"  Total Sessions Created: {Fore.MAGENTA}{response.total_sessions_created}{Style.RESET_ALL}")
+        print(f"  Avg Response Time: {Fore.YELLOW}{response.average_response_time:.3f}s{Style.RESET_ALL}")
+        print(f"  Model: {Fore.MAGENTA}{response.model}{Style.RESET_ALL}")
+        print(f"  Framework: {Fore.MAGENTA}{response.framework}{Style.RESET_ALL}")
         print(f"{Fore.CYAN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
         
     except grpc.RpcError as e:
@@ -228,13 +228,13 @@ def get_session_info():
         duration = timedelta(seconds=response.duration_seconds)
         
         print(f"\n{Fore.CYAN}┌─ 📋 SESSION INFO ────────────────────────────────────────────┐{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Session ID: {response.session_id[:8]}...")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Model: {response.model}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Total Messages: {response.message_count}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} User Messages: {response.user_messages}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} AI Messages: {response.model_messages}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Duration: {str(duration).split('.')[0]}")
-        print(f"{Fore.CYAN}│{Style.RESET_ALL} Created: {datetime.fromisoformat(response.created_at).strftime('%H:%M:%S')}")
+        print(f"  Session ID: {response.session_id[:8]}...")
+        print(f"  Model: {response.model}")
+        print(f"  Total Messages: {response.message_count}")
+        print(f"  User Messages: {response.user_messages}")
+        print(f"  AI Messages: {response.model_messages}")
+        print(f"  Duration: {str(duration).split('.')[0]}")
+        print(f"  Created: {datetime.fromisoformat(response.created_at).strftime('%H:%M:%S')}")
         print(f"{Fore.CYAN}└──────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
         return True
         
@@ -257,7 +257,7 @@ def list_all_sessions():
         print(f"\n{Fore.CYAN}┌─ 📋 ALL ACTIVE SESSIONS ({response.active_sessions}) ────────────────────────┐{Style.RESET_ALL}")
         
         if not response.sessions:
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} No active sessions")
+            print(f"  No active sessions")
         else:
             for i, session in enumerate(response.sessions, 1):
                 duration_str = f"{session.duration_minutes}m"
@@ -265,7 +265,7 @@ def list_all_sessions():
                 is_current = session.session_id == current_session['session_id']
                 marker = " ← CURRENT" if is_current else ""
                 
-                print(f"{Fore.CYAN}│{Style.RESET_ALL} {i}. {session.session_id[:8]}... ({session.message_count} msgs, {duration_str}, {created_time}){Fore.GREEN}{marker}{Style.RESET_ALL}")
+                print(f"  {i}. {session.session_id[:8]}... ({session.message_count} msgs, {duration_str}, {created_time}){Fore.GREEN}{marker}{Style.RESET_ALL}")
         
         print(f"{Fore.CYAN}└──────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
         return True
@@ -297,10 +297,10 @@ def connect_grpc():
         
         timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
         print(f"\n{Fore.GREEN}┌─ 🚀 GRPC CONNECTED [{timestamp}] ─────────────────────────────┐{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}│{Style.RESET_ALL} Server: {Fore.CYAN}{SERVER_URL}{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}│{Style.RESET_ALL} Framework: {Fore.MAGENTA}gRPC + Async Streaming{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}│{Style.RESET_ALL} Protocol: gRPC")
-        print(f"{Fore.GREEN}│{Style.RESET_ALL} Streaming: {Fore.GREEN}BIDIRECTIONAL{Style.RESET_ALL}")
+        print(f"  Server: {Fore.CYAN}{SERVER_URL}{Style.RESET_ALL}")
+        print(f"  Framework: {Fore.MAGENTA}gRPC + Async Streaming{Style.RESET_ALL}")
+        print(f"  Protocol: gRPC")
+        print(f"  Streaming: {Fore.GREEN}BIDIRECTIONAL{Style.RESET_ALL}")
         print(f"{Fore.GREEN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
         
         print(f"{Fore.GREEN}✅ gRPC connected successfully!{Style.RESET_ALL}")
@@ -338,8 +338,8 @@ def disconnect_grpc():
         
         timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
         print(f"\n{Fore.YELLOW}┌─ 🚀 GRPC DISCONNECTED [{timestamp}] ───────────────────────────┐{Style.RESET_ALL}")
-        print(f"{Fore.YELLOW}│{Style.RESET_ALL} Server: {Fore.CYAN}{SERVER_URL}{Style.RESET_ALL}")
-        print(f"{Fore.YELLOW}│{Style.RESET_ALL} Status: Disconnected")
+        print(f"  Server: {Fore.CYAN}{SERVER_URL}{Style.RESET_ALL}")
+        print(f"  Status: Disconnected")
         print(f"{Fore.YELLOW}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
         
         print(f"{Fore.GREEN}✅ gRPC disconnected successfully!{Style.RESET_ALL}")
@@ -354,7 +354,7 @@ def create_new_session():
         return
     
     try:
-        log_message_sent('CreateSession')
+        print_message_sent('CreateSession')
         
         request = chat_pb2.CreateSessionRequest(model_id="gemini-2.0-flash")
         response = grpc_state['stub'].CreateSession(request)
@@ -388,7 +388,7 @@ def delete_current_session():
         return
     
     try:
-        log_message_sent('DeleteSession')
+        print_message_sent('DeleteSession')
         
         request = chat_pb2.DeleteSessionRequest(session_id=current_session['session_id'])
         response = grpc_state['stub'].DeleteSession(request)
@@ -418,7 +418,7 @@ async def send_chat_message(user_message: str):
     
     try:
         session_stats['messages_sent'] += 1
-        log_message_sent('Chat', user_message)
+        print_message_sent('Chat', user_message)
         
         # Create the request
         request = chat_pb2.ChatRequest(
@@ -475,14 +475,14 @@ async def send_chat_message(user_message: str):
                     session_stats['total_response_time'] += total_time
                     session_stats['successful_requests'] += 1
                     
-                    # Log completion
+                    # Print completion info
                     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
                     safe_print(f"\n{Fore.GREEN}┌─ 🚀 GRPC RESPONSE COMPLETED [{timestamp}] ────────────────────┐{Style.RESET_ALL}")
-                    safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Total Chunks: {response.total_chunks}")
-                    safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Total Time: {Fore.YELLOW}{response.processing_time:.3f}s{Style.RESET_ALL}")
-                    safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Context Messages: {response.message_count}")
-                    safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Protocol: gRPC Stream")
-                    safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Status: {Fore.GREEN}SUCCESS{Style.RESET_ALL}")
+                    safe_print(f"  Total Chunks: {response.total_chunks}")
+                    safe_print(f"  Total Time: {Fore.YELLOW}{response.processing_time:.3f}s{Style.RESET_ALL}")
+                    safe_print(f"  Context Messages: {response.message_count}")
+                    safe_print(f"  Protocol: gRPC Stream")
+                    safe_print(f"  Status: {Fore.GREEN}SUCCESS{Style.RESET_ALL}")
                     safe_print(f"{Fore.GREEN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
                     
                     grpc_state['is_streaming'] = False
