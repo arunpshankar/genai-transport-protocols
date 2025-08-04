@@ -112,39 +112,39 @@ def check_server_health():
         print(f"{Fore.RED}❌ Error checking server health: {e}{Style.RESET_ALL}")
         return False
 
-def log_websocket_connect():
-    """Log WebSocket connection"""
+def print_websocket_connect():
+    """Print WebSocket connection info"""
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     safe_print(f"\n{Fore.GREEN}┌─ 🔌 WEBSOCKET CONNECTED [{timestamp}] ───────────────────────┐{Style.RESET_ALL}")
-    safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Server: {Fore.CYAN}ws://{SERVER_URL}/ws{Style.RESET_ALL}")
-    safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Framework: {Fore.MAGENTA}FastAPI + WebSockets{Style.RESET_ALL}")
-    safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Protocol: WebSocket")
-    safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Connection: {Fore.CYAN}{current_session['connection_id'][:8] if current_session['connection_id'] else 'Unknown'}...{Style.RESET_ALL}")
-    safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Bidirectional: {Fore.GREEN}ENABLED{Style.RESET_ALL}")
+    safe_print(f"  Server: {Fore.CYAN}ws://{SERVER_URL}/ws{Style.RESET_ALL}")
+    safe_print(f"  Framework: {Fore.MAGENTA}FastAPI + WebSockets{Style.RESET_ALL}")
+    safe_print(f"  Protocol: WebSocket")
+    safe_print(f"  Connection: {Fore.CYAN}{current_session['connection_id'][:8] if current_session['connection_id'] else 'Unknown'}...{Style.RESET_ALL}")
+    safe_print(f"  Bidirectional: {Fore.GREEN}ENABLED{Style.RESET_ALL}")
     safe_print(f"{Fore.GREEN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
-def log_websocket_disconnect(reason: str = "Normal"):
-    """Log WebSocket disconnection"""
+def print_websocket_disconnect(reason: str = "Normal"):
+    """Print WebSocket disconnection info"""
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     safe_print(f"\n{Fore.YELLOW}┌─ 🔌 WEBSOCKET DISCONNECTED [{timestamp}] ─────────────────────┐{Style.RESET_ALL}")
-    safe_print(f"{Fore.YELLOW}│{Style.RESET_ALL} Reason: {reason}")
-    safe_print(f"{Fore.YELLOW}│{Style.RESET_ALL} Connection: {Fore.CYAN}{current_session['connection_id'][:8] if current_session['connection_id'] else 'Unknown'}...{Style.RESET_ALL}")
-    safe_print(f"{Fore.YELLOW}│{Style.RESET_ALL} Status: Disconnected")
+    safe_print(f"  Reason: {reason}")
+    safe_print(f"  Connection: {Fore.CYAN}{current_session['connection_id'][:8] if current_session['connection_id'] else 'Unknown'}...{Style.RESET_ALL}")
+    safe_print(f"  Status: Disconnected")
     safe_print(f"{Fore.YELLOW}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
-def log_message_sent(message_type: str, content: str = ""):
-    """Log outgoing WebSocket message"""
+def print_message_sent(message_type: str, content: str = ""):
+    """Print outgoing WebSocket message info"""
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     safe_print(f"\n{Fore.BLUE}┌─ 📤 WEBSOCKET MESSAGE SENT [{timestamp}] ────────────────────┐{Style.RESET_ALL}")
-    safe_print(f"{Fore.BLUE}│{Style.RESET_ALL} Type: {message_type}")
-    safe_print(f"{Fore.BLUE}│{Style.RESET_ALL} Connection: {Fore.CYAN}{current_session['connection_id'][:8] if current_session['connection_id'] else 'Unknown'}...{Style.RESET_ALL}")
+    safe_print(f"  Type: {message_type}")
+    safe_print(f"  Connection: {Fore.CYAN}{current_session['connection_id'][:8] if current_session['connection_id'] else 'Unknown'}...{Style.RESET_ALL}")
     
     if message_type == 'chat' and content:
         preview = content[:40] + ('...' if len(content) > 40 else '')
-        safe_print(f"{Fore.BLUE}│{Style.RESET_ALL} Message: {Fore.WHITE}\"{preview}\"{Style.RESET_ALL}")
+        safe_print(f"  Message: {Fore.WHITE}\"{preview}\"{Style.RESET_ALL}")
     
     safe_print(f"{Fore.BLUE}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
@@ -166,25 +166,25 @@ def print_session_stats():
                  if session_stats['total_streams'] > 0 else 0)
     
     print(f"\n{Fore.MAGENTA}┌─ 📊 CLIENT SESSION STATISTICS ──────────────────────────────┐{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Client Session Duration: {str(uptime).split('.')[0]}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Messages Sent: {Fore.YELLOW}{session_stats['messages_sent']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Successful Streams: {Fore.GREEN}{session_stats['successful_requests']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Failed Streams: {Fore.RED}{session_stats['failed_requests']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Total Chunks Received: {Fore.CYAN}{session_stats['total_chunks_received']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Avg Chunks per Stream: {Fore.CYAN}{avg_chunks:.1f}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Connection Attempts: {Fore.YELLOW}{session_stats['connection_attempts']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Reconnections: {Fore.YELLOW}{session_stats['reconnections']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Sessions Created: {Fore.CYAN}{session_stats['sessions_created']}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Avg Response Time: {Fore.YELLOW}{avg_response_time:.3f}s{Style.RESET_ALL}")
+    print(f"  Client Session Duration: {str(uptime).split('.')[0]}")
+    print(f"  Messages Sent: {Fore.YELLOW}{session_stats['messages_sent']}{Style.RESET_ALL}")
+    print(f"  Successful Streams: {Fore.GREEN}{session_stats['successful_requests']}{Style.RESET_ALL}")
+    print(f"  Failed Streams: {Fore.RED}{session_stats['failed_requests']}{Style.RESET_ALL}")
+    print(f"  Total Chunks Received: {Fore.CYAN}{session_stats['total_chunks_received']}{Style.RESET_ALL}")
+    print(f"  Avg Chunks per Stream: {Fore.CYAN}{avg_chunks:.1f}{Style.RESET_ALL}")
+    print(f"  Connection Attempts: {Fore.YELLOW}{session_stats['connection_attempts']}{Style.RESET_ALL}")
+    print(f"  Reconnections: {Fore.YELLOW}{session_stats['reconnections']}{Style.RESET_ALL}")
+    print(f"  Sessions Created: {Fore.CYAN}{session_stats['sessions_created']}{Style.RESET_ALL}")
+    print(f"  Avg Response Time: {Fore.YELLOW}{avg_response_time:.3f}s{Style.RESET_ALL}")
     
     connection_status = f"{Fore.GREEN}Connected{Style.RESET_ALL}" if websocket_state['is_connected'] else f"{Fore.RED}Disconnected{Style.RESET_ALL}"
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} WebSocket Status: {connection_status}")
+    print(f"  WebSocket Status: {connection_status}")
     
     if current_session['session_id']:
-        print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Current Session: {Fore.CYAN}{current_session['session_id'][:8]}...{Style.RESET_ALL}")
-        print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Session Messages: {Fore.CYAN}{current_session['message_count']}{Style.RESET_ALL}")
+        print(f"  Current Session: {Fore.CYAN}{current_session['session_id'][:8]}...{Style.RESET_ALL}")
+        print(f"  Session Messages: {Fore.CYAN}{current_session['message_count']}{Style.RESET_ALL}")
     else:
-        print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Current Session: {Fore.RED}None{Style.RESET_ALL}")
+        print(f"  Current Session: {Fore.RED}None{Style.RESET_ALL}")
     
     print(f"{Fore.MAGENTA}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
@@ -219,16 +219,16 @@ def get_server_stats():
             uptime_str = str(timedelta(seconds=stats['uptime_seconds']))
             
             print(f"\n{Fore.CYAN}┌─ 🖥️  WEBSOCKET SERVER STATISTICS ───────────────────────────┐{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Server Uptime: {uptime_str}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Total Requests: {Fore.YELLOW}{stats['total_requests']}{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Successful: {Fore.GREEN}{stats['successful_requests']}{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Failed: {Fore.RED}{stats['failed_requests']}{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Active Sessions: {Fore.MAGENTA}{stats['active_sessions']}{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} WebSocket Connections: {Fore.MAGENTA}{stats['websocket_connections']}{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Total Sessions Created: {Fore.MAGENTA}{stats['total_sessions_created']}{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Avg Response Time: {Fore.YELLOW}{stats['average_response_time']:.3f}s{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Model: {Fore.MAGENTA}{stats['model']}{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Framework: {Fore.MAGENTA}FastAPI + WebSockets{Style.RESET_ALL}")
+            print(f"  Server Uptime: {uptime_str}")
+            print(f"  Total Requests: {Fore.YELLOW}{stats['total_requests']}{Style.RESET_ALL}")
+            print(f"  Successful: {Fore.GREEN}{stats['successful_requests']}{Style.RESET_ALL}")
+            print(f"  Failed: {Fore.RED}{stats['failed_requests']}{Style.RESET_ALL}")
+            print(f"  Active Sessions: {Fore.MAGENTA}{stats['active_sessions']}{Style.RESET_ALL}")
+            print(f"  WebSocket Connections: {Fore.MAGENTA}{stats['websocket_connections']}{Style.RESET_ALL}")
+            print(f"  Total Sessions Created: {Fore.MAGENTA}{stats['total_sessions_created']}{Style.RESET_ALL}")
+            print(f"  Avg Response Time: {Fore.YELLOW}{stats['average_response_time']:.3f}s{Style.RESET_ALL}")
+            print(f"  Model: {Fore.MAGENTA}{stats['model']}{Style.RESET_ALL}")
+            print(f"  Framework: {Fore.MAGENTA}FastAPI + WebSockets{Style.RESET_ALL}")
             print(f"{Fore.CYAN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
         else:
             print(f"{Fore.RED}❌ Failed to get server statistics{Style.RESET_ALL}")
@@ -249,13 +249,13 @@ def get_session_info():
             duration = timedelta(seconds=info['session_duration_seconds'])
             
             print(f"\n{Fore.CYAN}┌─ 📋 SESSION INFO ────────────────────────────────────────────┐{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Session ID: {info['session_id'][:8]}...")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Model: {info['model']}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Total Messages: {info['message_count']}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} User Messages: {info['user_messages']}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} AI Messages: {info['model_messages']}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Duration: {str(duration).split('.')[0]}")
-            print(f"{Fore.CYAN}│{Style.RESET_ALL} Created: {datetime.fromisoformat(info['created_at']).strftime('%H:%M:%S')}")
+            print(f"  Session ID: {info['session_id'][:8]}...")
+            print(f"  Model: {info['model']}")
+            print(f"  Total Messages: {info['message_count']}")
+            print(f"  User Messages: {info['user_messages']}")
+            print(f"  AI Messages: {info['model_messages']}")
+            print(f"  Duration: {str(duration).split('.')[0]}")
+            print(f"  Created: {datetime.fromisoformat(info['created_at']).strftime('%H:%M:%S')}")
             print(f"{Fore.CYAN}└──────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
             return True
         else:
@@ -278,7 +278,7 @@ def list_all_sessions():
             print(f"\n{Fore.CYAN}┌─ 📋 ALL ACTIVE SESSIONS ({data['active_sessions']}) ────────────────────────┐{Style.RESET_ALL}")
             
             if not sessions:
-                print(f"{Fore.CYAN}│{Style.RESET_ALL} No active sessions")
+                print(f"  No active sessions")
             else:
                 for i, session in enumerate(sessions, 1):
                     duration = timedelta(minutes=session['duration_minutes'])
@@ -287,7 +287,7 @@ def list_all_sessions():
                     marker = " ← CURRENT" if is_current else ""
                     clients = session.get('connected_clients', 0)
                     
-                    print(f"{Fore.CYAN}│{Style.RESET_ALL} {i}. {session['session_id'][:8]}... ({session['message_count']} msgs, {clients} clients, {str(duration).split('.')[0]}, {created_time}){Fore.GREEN}{marker}{Style.RESET_ALL}")
+                    print(f"  {i}. {session['session_id'][:8]}... ({session['message_count']} msgs, {clients} clients, {str(duration).split('.')[0]}, {created_time}){Fore.GREEN}{marker}{Style.RESET_ALL}")
             
             print(f"{Fore.CYAN}└──────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
             return True
@@ -331,7 +331,7 @@ async def websocket_handler():
                 websocket_state['websocket'] = websocket
                 websocket_state['is_connected'] = True
                 
-                log_websocket_connect()
+                print_websocket_connect()
                 
                 async for message in websocket:
                     if websocket_state['should_stop']:
@@ -397,14 +397,14 @@ async def websocket_handler():
                             session_stats['total_response_time'] += total_time
                             session_stats['successful_requests'] += 1
                             
-                            # Log completion
+                            # Print completion info
                             timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
                             safe_print(f"\n{Fore.GREEN}┌─ 🔌 WEBSOCKET RESPONSE COMPLETED [{timestamp}] ──────────────┐{Style.RESET_ALL}")
-                            safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Total Chunks: {data.get('total_chunks', 0)}")
-                            safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Total Time: {Fore.YELLOW}{data.get('processing_time', 0):.3f}s{Style.RESET_ALL}")
-                            safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Context Messages: {data.get('message_count', 0)}")
-                            safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Protocol: WebSocket")
-                            safe_print(f"{Fore.GREEN}│{Style.RESET_ALL} Status: {Fore.GREEN}SUCCESS{Style.RESET_ALL}")
+                            safe_print(f"  Total Chunks: {data.get('total_chunks', 0)}")
+                            safe_print(f"  Total Time: {Fore.YELLOW}{data.get('processing_time', 0):.3f}s{Style.RESET_ALL}")
+                            safe_print(f"  Context Messages: {data.get('message_count', 0)}")
+                            safe_print(f"  Protocol: WebSocket")
+                            safe_print(f"  Status: {Fore.GREEN}SUCCESS{Style.RESET_ALL}")
                             safe_print(f"{Fore.GREEN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
                             
                             websocket_state['is_streaming'] = False
@@ -431,9 +431,9 @@ async def websocket_handler():
                         safe_print(f"{Fore.RED}❌ Error processing message: {e}{Style.RESET_ALL}")
         
         except websockets.exceptions.ConnectionClosed:
-            log_websocket_disconnect("Connection closed by server")
+            print_websocket_disconnect("Connection closed by server")
         except Exception as e:
-            log_websocket_disconnect(f"Error: {str(e)}")
+            print_websocket_disconnect(f"Error: {str(e)}")
             if "Connection refused" in str(e):
                 session_stats['failed_requests'] += 1
         finally:
@@ -557,7 +557,7 @@ def send_chat_message(user_message: str):
     
     session_stats['messages_sent'] += 1
     
-    log_message_sent('chat', user_message)
+    print_message_sent('chat', user_message)
     
     success = send_websocket_message('chat', {
         'message': user_message,
@@ -573,7 +573,7 @@ def create_new_session():
         print(f"{Fore.RED}❌ Not connected to WebSocket server. Use /connect first.{Style.RESET_ALL}")
         return
     
-    log_message_sent('create_session')
+    print_message_sent('create_session')
     send_websocket_message('create_session')
 
 def send_ping():

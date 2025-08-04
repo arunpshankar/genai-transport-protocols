@@ -1,6 +1,5 @@
 from shared.setup import initialize_genai_client
 from shared.llm import ChatSession, create_chat_session
-from shared.logger import logger
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
@@ -161,10 +160,10 @@ def create_new_session(model_id: str = None) -> tuple[str, ChatSession]:
         }
         chat_stats['total_sessions_created'] += 1
         
-        logger.info(f"Created new session {session_id} with model {model_id}")
+        print(f"{Fore.GREEN}✨ Created new session {session_id[:8]}... with model {model_id}{Style.RESET_ALL}")
         return session_id, chat_session
     except Exception as e:
-        logger.error(f"Failed to create new session: {e}")
+        print(f"{Fore.RED}❌ Failed to create new session: {e}{Style.RESET_ALL}")
         raise Exception("Failed to create chat session")
 
 def get_or_create_session(session_id: str = None, model_id: str = None) -> tuple[str, ChatSession, bool]:
@@ -180,55 +179,55 @@ def get_or_create_session(session_id: str = None, model_id: str = None) -> tuple
     
     return session_id, chat_session, is_new_session
 
-def log_websocket_connect(connection_id: str, client_ip: str):
-    """Log WebSocket connection"""
+def print_websocket_connect(connection_id: str, client_ip: str):
+    """Print WebSocket connection info"""
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     print(f"\n{Fore.MAGENTA}┌─ 🔌 WEBSOCKET CONNECTED [{timestamp}] ───────────────────────┐{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Connection ID: {Fore.CYAN}{connection_id[:8]}...{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Client IP: {Fore.GREEN}{client_ip}{Style.RESET_ALL}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Active Connections: {len(websocket_connections) + 1}")
-    print(f"{Fore.MAGENTA}│{Style.RESET_ALL} Protocol: WebSocket")
+    print(f"  Connection ID: {Fore.CYAN}{connection_id[:8]}...{Style.RESET_ALL}")
+    print(f"  Client IP: {Fore.GREEN}{client_ip}{Style.RESET_ALL}")
+    print(f"  Active Connections: {len(websocket_connections) + 1}")
+    print(f"  Protocol: WebSocket")
     print(f"{Fore.MAGENTA}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
-def log_websocket_disconnect(connection_id: str, reason: str = "Normal"):
-    """Log WebSocket disconnection"""
+def print_websocket_disconnect(connection_id: str, reason: str = "Normal"):
+    """Print WebSocket disconnection info"""
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     print(f"\n{Fore.YELLOW}┌─ 🔌 WEBSOCKET DISCONNECTED [{timestamp}] ─────────────────────┐{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}│{Style.RESET_ALL} Connection ID: {Fore.CYAN}{connection_id[:8]}...{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}│{Style.RESET_ALL} Reason: {reason}")
-    print(f"{Fore.YELLOW}│{Style.RESET_ALL} Active Connections: {len(websocket_connections)}")
+    print(f"  Connection ID: {Fore.CYAN}{connection_id[:8]}...{Style.RESET_ALL}")
+    print(f"  Reason: {reason}")
+    print(f"  Active Connections: {len(websocket_connections)}")
     print(f"{Fore.YELLOW}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
-def log_message_received(connection_id: str, session_id: str, message_type: str, content: str):
-    """Log received WebSocket message"""
+def print_message_received(connection_id: str, session_id: str, message_type: str, content: str):
+    """Print received WebSocket message info"""
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     print(f"\n{Fore.BLUE}┌─ 📩 WEBSOCKET MESSAGE [{timestamp}] ──────────────────────────┐{Style.RESET_ALL}")
-    print(f"{Fore.BLUE}│{Style.RESET_ALL} Connection: {Fore.CYAN}{connection_id[:8]}...{Style.RESET_ALL}")
-    print(f"{Fore.BLUE}│{Style.RESET_ALL} Session: {Fore.CYAN}{session_id[:8] if session_id else 'None'}...{Style.RESET_ALL}")
-    print(f"{Fore.BLUE}│{Style.RESET_ALL} Type: {message_type}")
+    print(f"  Connection: {Fore.CYAN}{connection_id[:8]}...{Style.RESET_ALL}")
+    print(f"  Session: {Fore.CYAN}{session_id[:8] if session_id else 'None'}...{Style.RESET_ALL}")
+    print(f"  Type: {message_type}")
     
     if message_type == 'chat':
         preview = content[:40] + ('...' if len(content) > 40 else '')
-        print(f"{Fore.BLUE}│{Style.RESET_ALL} Message: {Fore.WHITE}\"{preview}\"{Style.RESET_ALL}")
+        print(f"  Message: {Fore.WHITE}\"{preview}\"{Style.RESET_ALL}")
     
     print(f"{Fore.BLUE}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
-def log_response_start(connection_id: str, session_id: str, message_count: int):
-    """Log response generation start"""
+def print_response_start(connection_id: str, session_id: str, message_count: int):
+    """Print response generation start info"""
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     print(f"\n{Fore.GREEN}┌─ 🧠 GENERATING RESPONSE [{timestamp}] ────────────────────────┐{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}│{Style.RESET_ALL} Connection: {Fore.CYAN}{connection_id[:8]}...{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}│{Style.RESET_ALL} Session: {Fore.CYAN}{session_id[:8]}...{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}│{Style.RESET_ALL} Context Messages: {message_count}")
-    print(f"{Fore.GREEN}│{Style.RESET_ALL} Model: {MODEL_ID}")
+    print(f"  Connection: {Fore.CYAN}{connection_id[:8]}...{Style.RESET_ALL}")
+    print(f"  Session: {Fore.CYAN}{session_id[:8]}...{Style.RESET_ALL}")
+    print(f"  Context Messages: {message_count}")
+    print(f"  Model: {MODEL_ID}")
     print(f"{Fore.GREEN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
-def log_chunk_sent(connection_id: str, chunk_num: int, chunk_text: str):
-    """Log individual chunks sent"""
+def print_chunk_sent(connection_id: str, chunk_num: int, chunk_text: str):
+    """Print individual chunks sent info"""
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     preview = chunk_text[:30].replace('\n', ' ') + ('...' if len(chunk_text) > 30 else '')
     
@@ -241,14 +240,14 @@ def print_stats():
                         if chat_stats['successful_requests'] > 0 else 0)
     
     print(f"\n{Fore.CYAN}┌─ 📊 WEBSOCKET SERVER STATISTICS ────────────────────────────┐{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}│{Style.RESET_ALL} Uptime: {str(uptime).split('.')[0]}")
-    print(f"{Fore.CYAN}│{Style.RESET_ALL} Total Requests: {Fore.YELLOW}{chat_stats['total_requests']}{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}│{Style.RESET_ALL} Successful: {Fore.GREEN}{chat_stats['successful_requests']}{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}│{Style.RESET_ALL} Failed: {Fore.RED}{chat_stats['failed_requests']}{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}│{Style.RESET_ALL} Active Sessions: {Fore.MAGENTA}{len(chat_sessions)}{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}│{Style.RESET_ALL} WebSocket Connections: {Fore.MAGENTA}{len(websocket_connections)}{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}│{Style.RESET_ALL} Total Sessions: {Fore.MAGENTA}{chat_stats['total_sessions_created']}{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}│{Style.RESET_ALL} Avg Response Time: {Fore.YELLOW}{avg_response_time:.3f}s{Style.RESET_ALL}")
+    print(f"  Uptime: {str(uptime).split('.')[0]}")
+    print(f"  Total Requests: {Fore.YELLOW}{chat_stats['total_requests']}{Style.RESET_ALL}")
+    print(f"  Successful: {Fore.GREEN}{chat_stats['successful_requests']}{Style.RESET_ALL}")
+    print(f"  Failed: {Fore.RED}{chat_stats['failed_requests']}{Style.RESET_ALL}")
+    print(f"  Active Sessions: {Fore.MAGENTA}{len(chat_sessions)}{Style.RESET_ALL}")
+    print(f"  WebSocket Connections: {Fore.MAGENTA}{len(websocket_connections)}{Style.RESET_ALL}")
+    print(f"  Total Sessions: {Fore.MAGENTA}{chat_stats['total_sessions_created']}{Style.RESET_ALL}")
+    print(f"  Avg Response Time: {Fore.YELLOW}{avg_response_time:.3f}s{Style.RESET_ALL}")
     print(f"{Fore.CYAN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 async def send_message(websocket: WebSocket, message_type: str, data: dict):
@@ -296,7 +295,7 @@ async def websocket_endpoint(websocket: WebSocket):
     websocket_connections[connection_id] = websocket
     chat_stats['websocket_connections'] += 1
     
-    log_websocket_connect(connection_id, client_ip)
+    print_websocket_connect(connection_id, client_ip)
     
     # Send welcome message
     await send_message(websocket, 'connected', {
@@ -336,7 +335,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         'connection_id': connection_id
                     })
                     
-                    log_message_received(connection_id, session_id, 'create_session', model_id)
+                    print_message_received(connection_id, session_id, 'create_session', model_id)
                 
                 elif message_type == 'join_session':
                     # Join existing session
@@ -352,7 +351,7 @@ async def websocket_endpoint(websocket: WebSocket):
                             'connection_id': connection_id
                         })
                         
-                        log_message_received(connection_id, session_id, 'join_session', session_id)
+                        print_message_received(connection_id, session_id, 'join_session', session_id)
                     else:
                         await send_message(websocket, 'error', {
                             'message': 'Session not found',
@@ -372,7 +371,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     session_id, chat_session, is_new_session = get_or_create_session(session_id)
                     connection_sessions[connection_id] = session_id
                     
-                    log_message_received(connection_id, session_id, 'chat', user_message)
+                    print_message_received(connection_id, session_id, 'chat', user_message)
                     
                     if is_new_session:
                         await send_message(websocket, 'session_created', {
@@ -388,7 +387,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         'context_messages': chat_session.get_message_count()
                     })
                     
-                    log_response_start(connection_id, session_id, chat_session.get_message_count())
+                    print_response_start(connection_id, session_id, chat_session.get_message_count())
                     
                     start_time = time.time()
                     
@@ -432,7 +431,7 @@ async def websocket_endpoint(websocket: WebSocket):
                                     'session_id': session_id
                                 })
                                 
-                                log_chunk_sent(connection_id, chunk_count, chunk_text)
+                                print_chunk_sent(connection_id, chunk_count, chunk_text)
                                 current_chunk = ""
                                 
                                 # Simulate natural typing delay
@@ -464,7 +463,7 @@ async def websocket_endpoint(websocket: WebSocket):
                             'message': f'Error generating response: {str(e)}',
                             'session_id': session_id
                         })
-                        logger.error(f"Error in chat generation: {e}")
+                        print(f"{Fore.RED}❌ Error in chat generation: {e}{Style.RESET_ALL}")
                 
                 elif message_type == 'typing_start':
                     # Handle typing indicator
@@ -497,12 +496,12 @@ async def websocket_endpoint(websocket: WebSocket):
                 await send_message(websocket, 'error', {
                     'message': f'Server error: {str(e)}'
                 })
-                logger.error(f"WebSocket error: {e}")
+                print(f"{Fore.RED}❌ WebSocket error: {e}{Style.RESET_ALL}")
                 
     except WebSocketDisconnect:
-        log_websocket_disconnect(connection_id, "Client disconnected")
+        print_websocket_disconnect(connection_id, "Client disconnected")
     except Exception as e:
-        log_websocket_disconnect(connection_id, f"Error: {str(e)}")
+        print_websocket_disconnect(connection_id, f"Error: {str(e)}")
     finally:
         # Clean up connection
         if connection_id in websocket_connections:
@@ -534,7 +533,7 @@ async def create_session_http(request: NewSessionRequest):
             timestamp=datetime.now().isoformat()
         )
     except Exception as e:
-        logger.error(f"Error creating session: {e}")
+        print(f"{Fore.RED}❌ Error creating session: {e}{Style.RESET_ALL}")
         raise HTTPException(status_code=500, detail="Failed to create session")
 
 @app.get("/sessions/{session_id}", response_model=SessionInfoResponse)
@@ -623,11 +622,11 @@ async def health_check(request: Request):
     client_ip = get_client_ip(request)
     
     print(f"\n{Fore.BLUE}┌─ ❤️  HEALTH CHECK [{timestamp}] ──────────────────────────────┐{Style.RESET_ALL}")
-    print(f"{Fore.BLUE}│{Style.RESET_ALL} Client IP: {Fore.GREEN}{client_ip}{Style.RESET_ALL}")
-    print(f"{Fore.BLUE}│{Style.RESET_ALL} Status: {Fore.GREEN}HEALTHY{Style.RESET_ALL}")
-    print(f"{Fore.BLUE}│{Style.RESET_ALL} Uptime: {str(uptime).split('.')[0]}")
-    print(f"{Fore.BLUE}│{Style.RESET_ALL} Active Sessions: {Fore.MAGENTA}{len(chat_sessions)}{Style.RESET_ALL}")
-    print(f"{Fore.BLUE}│{Style.RESET_ALL} WebSocket Connections: {Fore.MAGENTA}{len(websocket_connections)}{Style.RESET_ALL}")
+    print(f"  Client IP: {Fore.GREEN}{client_ip}{Style.RESET_ALL}")
+    print(f"  Status: {Fore.GREEN}HEALTHY{Style.RESET_ALL}")
+    print(f"  Uptime: {str(uptime).split('.')[0]}")
+    print(f"  Active Sessions: {Fore.MAGENTA}{len(chat_sessions)}{Style.RESET_ALL}")
+    print(f"  WebSocket Connections: {Fore.MAGENTA}{len(websocket_connections)}{Style.RESET_ALL}")
     print(f"{Fore.BLUE}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
     
     return HealthResponse(
