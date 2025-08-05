@@ -1,15 +1,20 @@
-import asyncio
+from datetime import timedelta
+from datetime import datetime
+from typing import Optional
+from colorama import Style
+from colorama import Back
+from colorama import Fore
+from colorama import init 
 import websockets
+import threading
+import requests
+import asyncio
+import signal
 import json
 import time
-import threading
-from datetime import datetime, timedelta
-from colorama import Fore, Back, Style, init
-import os
-import requests
-from typing import Optional
-import signal
 import sys
+import os
+
 
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)
@@ -65,24 +70,27 @@ websocket_state = {
 print_lock = threading.Lock()
 
 def safe_print(*args, **kwargs):
-    """Thread-safe print function"""
+    """
+    Thread-safe print function
+    """
     with print_lock:
         print(*args, **kwargs)
 
 def print_banner():
-    """Print the application banner"""
     print(f"\n{Fore.GREEN}╔══════════════════════════════════════════════════════════════╗{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}║{Style.RESET_ALL}               🔌 FASTAPI WEBSOCKET CHAT CLIENT 🔌             {Fore.GREEN}║{Style.RESET_ALL}")
+    print(f"               🔌 FASTAPI WEBSOCKET CHAT CLIENT 🔌             ")
     print(f"{Fore.GREEN}╠══════════════════════════════════════════════════════════════╣{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}║{Style.RESET_ALL}  Server: {Fore.CYAN}{SERVER_URL:<47}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}║{Style.RESET_ALL}  Framework: {Fore.MAGENTA}FastAPI + WebSockets{' ' * 26}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}║{Style.RESET_ALL}  Multi-turn: {Fore.GREEN}ENABLED{' ' * 37}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}║{Style.RESET_ALL}  Real-time: {Fore.GREEN}BIDIRECTIONAL{' ' * 33}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}║{Style.RESET_ALL}  Status: {Fore.YELLOW}CONNECTING...{' ' * 35}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
+    print(f"  Server: {Fore.CYAN}{SERVER_URL:<47}{Style.RESET_ALL}  ")
+    print(f"  Framework: {Fore.MAGENTA}FastAPI + WebSockets{' ' * 26}{Style.RESET_ALL}  ")
+    print(f"  Multi-turn: {Fore.GREEN}ENABLED{' ' * 37}{Style.RESET_ALL}  ")
+    print(f"  Real-time: {Fore.GREEN}BIDIRECTIONAL{' ' * 33}{Style.RESET_ALL}  ")
+    print(f"  Status: {Fore.YELLOW}CONNECTING...{' ' * 35}{Style.RESET_ALL}  ")
     print(f"{Fore.GREEN}╚══════════════════════════════════════════════════════════════╝{Style.RESET_ALL}")
 
 def check_server_health():
-    """Check if the FastAPI server is running and healthy"""
+    """
+    Check if the FastAPI server is running and healthy
+    """
     print(f"{Fore.YELLOW}🔍 Checking FastAPI WebSocket server health...{Style.RESET_ALL}")
     
     try:
@@ -113,7 +121,9 @@ def check_server_health():
         return False
 
 def print_websocket_connect():
-    """Print WebSocket connection info"""
+    """
+    Print WebSocket connection info
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     safe_print(f"\n{Fore.GREEN}┌─ 🔌 WEBSOCKET CONNECTED [{timestamp}] ───────────────────────┐{Style.RESET_ALL}")
@@ -125,7 +135,9 @@ def print_websocket_connect():
     safe_print(f"{Fore.GREEN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def print_websocket_disconnect(reason: str = "Normal"):
-    """Print WebSocket disconnection info"""
+    """
+    Print WebSocket disconnection info
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     safe_print(f"\n{Fore.YELLOW}┌─ 🔌 WEBSOCKET DISCONNECTED [{timestamp}] ─────────────────────┐{Style.RESET_ALL}")
@@ -135,7 +147,9 @@ def print_websocket_disconnect(reason: str = "Normal"):
     safe_print(f"{Fore.YELLOW}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def print_message_sent(message_type: str, content: str = ""):
-    """Print outgoing WebSocket message info"""
+    """
+    Print outgoing WebSocket message info
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     safe_print(f"\n{Fore.BLUE}┌─ 📤 WEBSOCKET MESSAGE SENT [{timestamp}] ────────────────────┐{Style.RESET_ALL}")
@@ -149,16 +163,22 @@ def print_message_sent(message_type: str, content: str = ""):
     safe_print(f"{Fore.BLUE}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def display_ai_response_header(session_context: str = ""):
-    """Display AI response header"""
+    """
+    Display AI response header
+    """
     safe_print(f"\n{Fore.CYAN}🤖 {Back.BLUE} AI Response (WebSocket Streaming) {Style.RESET_ALL} {session_context}")
     safe_print(f"{Fore.WHITE}{'─' * 60}{Style.RESET_ALL}")
 
 def display_ai_response_footer():
-    """Display AI response footer"""
+    """
+    Display AI response footer
+    """
     safe_print(f"{Fore.WHITE}{'─' * 60}{Style.RESET_ALL}")
 
 def print_session_stats():
-    """Print current session statistics"""
+    """
+    Print current session statistics
+    """
     uptime = datetime.now() - session_stats['session_start']
     avg_response_time = (session_stats['total_response_time'] / session_stats['successful_requests'] 
                         if session_stats['successful_requests'] > 0 else 0)
@@ -189,7 +209,9 @@ def print_session_stats():
     print(f"{Fore.MAGENTA}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def print_help():
-    """Print available commands"""
+    """
+    Print available commands
+    """
     print(f"\n{Fore.YELLOW}📋 Available Commands:{Style.RESET_ALL}")
     print(f"{Fore.CYAN}  /help{Style.RESET_ALL}     - Show this help message")
     print(f"{Fore.CYAN}  /stats{Style.RESET_ALL}    - Show client session statistics")
@@ -211,7 +233,9 @@ def print_help():
     print(f"{Fore.CYAN}  /sessions{Style.RESET_ALL} - List all active sessions")
 
 def get_server_stats():
-    """Get and display server statistics"""
+    """
+    Get and display server statistics
+    """
     try:
         response = requests.get(STATS_ENDPOINT, timeout=5)
         if response.status_code == 200:
@@ -236,7 +260,9 @@ def get_server_stats():
         print(f"{Fore.RED}❌ Error getting server stats: {e}{Style.RESET_ALL}")
 
 def get_session_info():
-    """Get information about current session via HTTP"""
+    """
+    Get information about current session via HTTP
+    """
     try:
         if current_session['session_id'] is None:
             print(f"{Fore.RED}❌ No active session{Style.RESET_ALL}")
@@ -267,7 +293,9 @@ def get_session_info():
         return False
 
 def list_all_sessions():
-    """List all active sessions on the server"""
+    """
+    List all active sessions on the server
+    """
     try:
         response = requests.get(SESSION_INFO_ENDPOINT, timeout=5)
         
@@ -300,7 +328,9 @@ def list_all_sessions():
         return False
 
 def open_docs():
-    """Open API documentation"""
+    """
+    Open API documentation
+    """
     import webbrowser
     try:
         webbrowser.open(DOCS_ENDPOINT)
@@ -311,7 +341,9 @@ def open_docs():
         print(f"{Fore.YELLOW}💡 Manually visit: {DOCS_ENDPOINT}{Style.RESET_ALL}")
 
 def open_demo():
-    """Open WebSocket demo page"""
+    """
+    Open WebSocket demo page
+    """
     import webbrowser
     try:
         webbrowser.open(DEMO_ENDPOINT)
@@ -322,7 +354,9 @@ def open_demo():
         print(f"{Fore.YELLOW}💡 Manually visit: {DEMO_ENDPOINT}{Style.RESET_ALL}")
 
 async def websocket_handler():
-    """Handle WebSocket connection and messages"""
+    """
+    Handle WebSocket connection and messages
+    """
     session_stats['connection_attempts'] += 1
     
     while not websocket_state['should_stop']:
@@ -447,9 +481,13 @@ async def websocket_handler():
                 safe_print(f"{Fore.YELLOW}🔄 Attempting to reconnect...{Style.RESET_ALL}")
 
 def websocket_background_task():
-    """Background task to run WebSocket operations"""
+    """
+    Background task to run WebSocket operations
+    """
     def run_websocket_loop():
-        """Run the WebSocket event loop in a separate thread"""
+        """
+        Run the WebSocket event loop in a separate thread
+        """
         try:
             # Create new event loop for this thread
             loop = asyncio.new_event_loop()
@@ -469,7 +507,9 @@ def websocket_background_task():
     return thread
 
 def connect_websocket():
-    """Connect to WebSocket server"""
+    """
+    Connect to WebSocket server
+    """
     if websocket_state['is_connected']:
         print(f"{Fore.YELLOW}⚠️  Already connected to WebSocket server{Style.RESET_ALL}")
         return True
@@ -493,7 +533,9 @@ def connect_websocket():
         return False
 
 def disconnect_websocket():
-    """Disconnect from WebSocket server"""
+    """
+    Disconnect from WebSocket server
+    """
     if not websocket_state['is_connected']:
         print(f"{Fore.YELLOW}⚠️  Not connected to WebSocket server{Style.RESET_ALL}")
         return
@@ -524,7 +566,9 @@ def disconnect_websocket():
     websocket_state['websocket'] = None
 
 def send_websocket_message(message_type: str, data: dict = None):
-    """Send a message via WebSocket"""
+    """
+    Send a message via WebSocket
+    """
     if not websocket_state['is_connected'] or not websocket_state['websocket']:
         print(f"{Fore.RED}❌ WebSocket not connected{Style.RESET_ALL}")
         return False
@@ -550,7 +594,9 @@ def send_websocket_message(message_type: str, data: dict = None):
         return False
 
 def send_chat_message(user_message: str):
-    """Send a chat message via WebSocket"""
+    """
+    Send a chat message via WebSocket
+    """
     if not websocket_state['is_connected']:
         print(f"{Fore.RED}❌ Not connected to WebSocket server. Use /connect first.{Style.RESET_ALL}")
         return
@@ -568,7 +614,9 @@ def send_chat_message(user_message: str):
         session_stats['failed_requests'] += 1
 
 def create_new_session():
-    """Create a new chat session via WebSocket"""
+    """
+    Create a new chat session via WebSocket
+    """
     if not websocket_state['is_connected']:
         print(f"{Fore.RED}❌ Not connected to WebSocket server. Use /connect first.{Style.RESET_ALL}")
         return
@@ -577,7 +625,9 @@ def create_new_session():
     send_websocket_message('create_session')
 
 def send_ping():
-    """Send ping to server"""
+    """
+    Send ping to server
+    """
     if not websocket_state['is_connected']:
         print(f"{Fore.RED}❌ Not connected to WebSocket server{Style.RESET_ALL}")
         return
@@ -586,7 +636,9 @@ def send_ping():
     send_websocket_message('ping')
 
 def main():
-    """Main chat loop"""
+    """
+    Main chat loop
+    """
     print_banner()
     
     # Check server health before starting
