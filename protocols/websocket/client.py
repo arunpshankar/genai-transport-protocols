@@ -63,11 +63,13 @@ websocket_state = {
     'websocket': None,
     'event_loop': None,
     'handler_task': None,
-    'should_stop': False
+    'should_stop': False,
+    'waiting_for_input': False  # Add this flag
 }
 
 # Global lock for print operations
 print_lock = threading.Lock()
+input_event = threading.Event()  # Add event to signal when ready for input
 
 def safe_print(*args, **kwargs):
     """
@@ -353,6 +355,19 @@ def open_demo():
         print(f"{Fore.RED}❌ Could not open browser: {e}{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}💡 Manually visit: {DEMO_ENDPOINT}{Style.RESET_ALL}")
 
+def show_input_prompt():
+    """
+    Display the input prompt
+    """
+    session_indicator = ""
+    if current_session['session_id']:
+        session_indicator = f" {Fore.CYAN}[{current_session['session_id'][:8]}...]{Style.RESET_ALL}"
+    
+    connection_indicator = f" {Fore.GREEN}●{Style.RESET_ALL}" if websocket_state['is_connected'] else f" {Fore.RED}●{Style.RESET_ALL}"
+    
+    with print_lock:
+        print(f'\n{Fore.CYAN}You{session_indicator}{connection_indicator}{Style.RESET_ALL} {Fore.WHITE}›{Style.RESET_ALL} ', end='', flush=True)
+
 async def websocket_handler():
     """
     Handle WebSocket connection and messages
@@ -381,6 +396,9 @@ async def websocket_handler():
                             if 'server_info' in data:
                                 info = data['server_info']
                                 safe_print(f"{Fore.CYAN}📡 Server: {info.get('framework', 'Unknown')} ({info.get('model', 'Unknown')}){Style.RESET_ALL}")
+                            # Show prompt after connection
+                            if websocket_state['waiting_for_input']:
+                                show_input_prompt()
                         
                         elif message_type == 'session_created' or message_type == 'session_joined':
                             current_session['session_id'] = data.get('session_id')
@@ -393,6 +411,10 @@ async def websocket_handler():
                                 safe_print(f"{Fore.GREEN}✨ New session created: {current_session['session_id'][:8]}... ({current_session['model']}){Style.RESET_ALL}")
                             else:
                                 safe_print(f"{Fore.GREEN}🔗 Joined session: {current_session['session_id'][:8]}... ({current_session['model']}){Style.RESET_ALL}")
+                            
+                            # Show prompt after session creation
+                            if websocket_state['waiting_for_input']:
+                                show_input_prompt()
                         
                         elif message_type == 'status':
                             session_context = f"(Context: {data.get('context_messages', 0)} messages)"
@@ -442,6 +464,10 @@ async def websocket_handler():
                             safe_print(f"{Fore.GREEN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
                             
                             websocket_state['is_streaming'] = False
+                            
+                            # Show prompt after response completion - THIS IS THE KEY FIX
+                            if websocket_state['waiting_for_input']:
+                                show_input_prompt()
                         
                         elif message_type == 'session_update':
                             update_type = data.get('update_type')
@@ -451,18 +477,34 @@ async def websocket_handler():
                                 safe_print(f"\n{Fore.CYAN}📩 Session updated: {data.get('message_count', 0)} messages{Style.RESET_ALL}")
                             elif update_type == 'user_disconnected':
                                 safe_print(f"\n{Fore.YELLOW}👋 Another user disconnected{Style.RESET_ALL}")
+                            
+                            # Show prompt after session updates
+                            if websocket_state['waiting_for_input']:
+                                show_input_prompt()
                         
                         elif message_type == 'error':
                             session_stats['failed_requests'] += 1
                             safe_print(f"\n{Fore.RED}❌ Server Error: {data.get('message', 'Unknown error')}{Style.RESET_ALL}")
+                            
+                            # Show prompt after error
+                            if websocket_state['waiting_for_input']:
+                                show_input_prompt()
                         
                         elif message_type == 'pong':
                             safe_print(f"{Fore.GREEN}🏓 Pong received from server{Style.RESET_ALL}")
+                            
+                            # Show prompt after pong
+                            if websocket_state['waiting_for_input']:
+                                show_input_prompt()
                         
                     except json.JSONDecodeError:
                         safe_print(f"{Fore.RED}❌ Invalid JSON received from server{Style.RESET_ALL}")
+                        if websocket_state['waiting_for_input']:
+                            show_input_prompt()
                     except Exception as e:
                         safe_print(f"{Fore.RED}❌ Error processing message: {e}{Style.RESET_ALL}")
+                        if websocket_state['waiting_for_input']:
+                            show_input_prompt()
         
         except websockets.exceptions.ConnectionClosed:
             print_websocket_disconnect("Connection closed by server")
@@ -661,6 +703,7 @@ def main():
     # Setup signal handlers for graceful shutdown
     def signal_handler(sig, frame):
         print(f"\n{Fore.YELLOW}👋 Shutting down gracefully...{Style.RESET_ALL}")
+        websocket_state['waiting_for_input'] = False
         disconnect_websocket()
         print_session_stats()
         sys.exit(0)
@@ -670,15 +713,15 @@ def main():
     
     try:
         while True:
-            # Get user input
-            session_indicator = ""
-            if current_session['session_id']:
-                session_indicator = f" {Fore.CYAN}[{current_session['session_id'][:8]}...]{Style.RESET_ALL}"
+            # Set flag that we're waiting for input
+            websocket_state['waiting_for_input'] = True
             
-            connection_indicator = f" {Fore.GREEN}●{Style.RESET_ALL}" if websocket_state['is_connected'] else f" {Fore.RED}●{Style.RESET_ALL}"
+            # Show the input prompt
+            show_input_prompt()
             
             try:
-                user_message = input(f'\n{Fore.CYAN}You{session_indicator}{connection_indicator}{Style.RESET_ALL} {Fore.WHITE}›{Style.RESET_ALL} ').strip()
+                user_message = input().strip()  # Simplified input call
+                websocket_state['waiting_for_input'] = False  # Clear flag after getting input
             except (EOFError, KeyboardInterrupt):
                 break
             
@@ -756,6 +799,7 @@ def main():
         print(f"\n{Fore.RED}❌ Unexpected error: {e}{Style.RESET_ALL}")
     finally:
         print(f"\n{Fore.YELLOW}👋 Cleaning up...{Style.RESET_ALL}")
+        websocket_state['waiting_for_input'] = False
         disconnect_websocket()
         print_session_stats()
 
