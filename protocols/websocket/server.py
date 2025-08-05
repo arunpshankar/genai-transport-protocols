@@ -1,19 +1,31 @@
-from shared.setup import initialize_genai_client
-from shared.llm import ChatSession, create_chat_session
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from shared.setup import initialize_genai_client
+from contextlib import asynccontextmanager
+from shared.llm import create_chat_session
 from fastapi.responses import HTMLResponse
+from fastapi import WebSocketDisconnect
+from shared.llm import ChatSession
+from fastapi import HTTPException
 from pydantic import BaseModel
 from datetime import datetime
-import os
-import time
+from fastapi import WebSocket
+from fastapi import Request 
+from fastapi import FastAPI
+from typing import Optional 
+from colorama import Style
+from colorama import Back
+from colorama import Fore
+from colorama import init 
+from typing import Dict
+from typing import List 
+from typing import Set
 import uvicorn
-import json
 import asyncio
-from colorama import Fore, Back, Style, init
-from contextlib import asynccontextmanager
-from typing import Dict, List, Optional, Set
 import uuid
+import time
+import json
+import os
+
 
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)
@@ -123,29 +135,31 @@ app.add_middleware(
 )
 
 def print_banner():
-    """Print a beautiful startup banner"""
-    banner = f"""
-{Fore.CYAN}╔══════════════════════════════════════════════════════════════╗
-║               🔌 FASTAPI WEBSOCKET CHAT SERVER 🔌             ║
+    banner = f""" {Fore.CYAN}╔══════════════════════════════════════════════════════════════╗
+               🔌 FASTAPI WEBSOCKET CHAT SERVER 🔌             
 ╠══════════════════════════════════════════════════════════════╣
-║  Model: {MODEL_ID:<48} ║
-║  Framework: FastAPI + WebSockets{' ' * 31} ║
-║  Multi-turn: {Fore.GREEN}ENABLED{Fore.CYAN}{' ' * 41} ║
-║  Real-time: {Fore.GREEN}BIDIRECTIONAL{Fore.CYAN}{' ' * 35} ║
-║  Status: {Fore.GREEN}READY{Fore.CYAN}{' ' * 45} ║
+  Model: {MODEL_ID:<48} 
+  Framework: FastAPI + WebSockets{' ' * 31} 
+  Multi-turn: {Fore.GREEN}ENABLED{Fore.CYAN}{' ' * 41} 
+  Real-time: {Fore.GREEN}BIDIRECTIONAL{Fore.CYAN}{' ' * 35} 
+  Status: {Fore.GREEN}READY{Fore.CYAN}{' ' * 45} 
 ╚══════════════════════════════════════════════════════════════╝{Style.RESET_ALL}
 """
     print(banner)
 
 def get_client_ip(request: Request) -> str:
-    """Extract client IP from request"""
+    """
+    Extract client IP from request
+    """
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.client.host if request.client else "Unknown"
 
 def create_new_session(model_id: str = None) -> tuple[str, ChatSession]:
-    """Create a new chat session"""
+    """
+    Create a new chat session
+    """
     session_id = str(uuid.uuid4())
     if model_id is None:
         model_id = MODEL_ID
@@ -167,7 +181,9 @@ def create_new_session(model_id: str = None) -> tuple[str, ChatSession]:
         raise Exception("Failed to create chat session")
 
 def get_or_create_session(session_id: str = None, model_id: str = None) -> tuple[str, ChatSession, bool]:
-    """Get existing session or create new one"""
+    """
+    Get existing session or create new one
+    """
     is_new_session = False
     
     if session_id is None or session_id not in chat_sessions:
@@ -180,7 +196,9 @@ def get_or_create_session(session_id: str = None, model_id: str = None) -> tuple
     return session_id, chat_session, is_new_session
 
 def print_websocket_connect(connection_id: str, client_ip: str):
-    """Print WebSocket connection info"""
+    """
+    Print WebSocket connection info
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     print(f"\n{Fore.MAGENTA}┌─ 🔌 WEBSOCKET CONNECTED [{timestamp}] ───────────────────────┐{Style.RESET_ALL}")
@@ -191,7 +209,9 @@ def print_websocket_connect(connection_id: str, client_ip: str):
     print(f"{Fore.MAGENTA}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def print_websocket_disconnect(connection_id: str, reason: str = "Normal"):
-    """Print WebSocket disconnection info"""
+    """
+    Print WebSocket disconnection info
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     print(f"\n{Fore.YELLOW}┌─ 🔌 WEBSOCKET DISCONNECTED [{timestamp}] ─────────────────────┐{Style.RESET_ALL}")
@@ -201,7 +221,9 @@ def print_websocket_disconnect(connection_id: str, reason: str = "Normal"):
     print(f"{Fore.YELLOW}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def print_message_received(connection_id: str, session_id: str, message_type: str, content: str):
-    """Print received WebSocket message info"""
+    """
+    Print received WebSocket message info
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     print(f"\n{Fore.BLUE}┌─ 📩 WEBSOCKET MESSAGE [{timestamp}] ──────────────────────────┐{Style.RESET_ALL}")
@@ -216,7 +238,9 @@ def print_message_received(connection_id: str, session_id: str, message_type: st
     print(f"{Fore.BLUE}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def print_response_start(connection_id: str, session_id: str, message_count: int):
-    """Print response generation start info"""
+    """
+    Print response generation start info
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     print(f"\n{Fore.GREEN}┌─ 🧠 GENERATING RESPONSE [{timestamp}] ────────────────────────┐{Style.RESET_ALL}")
@@ -227,14 +251,18 @@ def print_response_start(connection_id: str, session_id: str, message_count: int
     print(f"{Fore.GREEN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def print_chunk_sent(connection_id: str, chunk_num: int, chunk_text: str):
-    """Print individual chunks sent info"""
+    """
+    Print individual chunks sent info
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     preview = chunk_text[:30].replace('\n', ' ') + ('...' if len(chunk_text) > 30 else '')
     
     print(f"{Fore.YELLOW}🔌 [{timestamp}] Chunk #{chunk_num} → {connection_id[:8]}...: \"{preview}\"{Style.RESET_ALL}")
 
 def print_stats():
-    """Print current server statistics"""
+    """
+    Print current server statistics
+    """
     uptime = datetime.now() - chat_stats['start_time']
     avg_response_time = (chat_stats['total_response_time'] / chat_stats['successful_requests'] 
                         if chat_stats['successful_requests'] > 0 else 0)
@@ -251,7 +279,9 @@ def print_stats():
     print(f"{Fore.CYAN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 async def send_message(websocket: WebSocket, message_type: str, data: dict):
-    """Send a structured message to WebSocket client"""
+    """
+    Send a structured message to WebSocket client
+    """
     message = {
         'type': message_type,
         'timestamp': datetime.now().isoformat(),
@@ -260,7 +290,9 @@ async def send_message(websocket: WebSocket, message_type: str, data: dict):
     await websocket.send_text(json.dumps(message))
 
 async def broadcast_session_update(session_id: str, update_type: str, data: dict):
-    """Broadcast session updates to all connected clients for this session"""
+    """
+    Broadcast session updates to all connected clients for this session
+    """
     message = {
         'type': 'session_update',
         'session_id': session_id,
@@ -287,7 +319,9 @@ async def broadcast_session_update(session_id: str, update_type: str, data: dict
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    """Main WebSocket endpoint for real-time chat"""
+    """
+    Main WebSocket endpoint for real-time chat
+    """
     connection_id = str(uuid.uuid4())
     client_ip = websocket.client.host if websocket.client else "Unknown"
     
@@ -522,7 +556,9 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.post("/sessions/new", response_model=NewSessionResponse)
 async def create_session_http(request: NewSessionRequest):
-    """Create a new chat session via HTTP"""
+    """
+    Create a new chat session via HTTP
+    """
     try:
         model_id = request.model_id or MODEL_ID
         session_id, chat_session = create_new_session(model_id)
@@ -538,7 +574,9 @@ async def create_session_http(request: NewSessionRequest):
 
 @app.get("/sessions/{session_id}", response_model=SessionInfoResponse)
 async def get_session_info(session_id: str):
-    """Get information about a specific session"""
+    """
+    Get information about a specific session
+    """
     if session_id not in chat_sessions:
         raise HTTPException(status_code=404, detail="Session not found")
     
@@ -558,7 +596,9 @@ async def get_session_info(session_id: str):
 
 @app.delete("/sessions/{session_id}")
 async def delete_session(session_id: str):
-    """Delete a specific session"""
+    """
+    Delete a specific session
+    """
     if session_id not in chat_sessions:
         raise HTTPException(status_code=404, detail="Session not found")
     
@@ -575,7 +615,9 @@ async def delete_session(session_id: str):
 
 @app.post("/sessions/{session_id}/clear")
 async def clear_session(session_id: str):
-    """Clear the history of a specific session"""
+    """
+    Clear the history of a specific session
+    """
     if session_id not in chat_sessions:
         raise HTTPException(status_code=404, detail="Session not found")
     
@@ -592,7 +634,9 @@ async def clear_session(session_id: str):
 
 @app.get("/sessions")
 async def list_sessions():
-    """List all active sessions"""
+    """
+    List all active sessions
+    """
     sessions = []
     for session_id, metadata in session_metadata.items():
         chat_session = chat_sessions[session_id]
@@ -615,7 +659,9 @@ async def list_sessions():
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check(request: Request):
-    """Health check endpoint with detailed status"""
+    """
+    Health check endpoint with detailed status
+    """
     uptime = datetime.now() - chat_stats['start_time']
     
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
@@ -642,7 +688,9 @@ async def health_check(request: Request):
 
 @app.get("/stats", response_model=StatsResponse)
 async def get_stats():
-    """Detailed statistics endpoint"""
+    """
+    Detailed statistics endpoint
+    """
     uptime = datetime.now() - chat_stats['start_time']
     avg_response_time = (chat_stats['total_response_time'] / chat_stats['successful_requests'] 
                         if chat_stats['successful_requests'] > 0 else 0)
@@ -662,7 +710,9 @@ async def get_stats():
 
 @app.get("/demo", response_class=HTMLResponse)
 async def demo_page():
-    """Interactive WebSocket demo page"""
+    """
+    Interactive WebSocket demo page
+    """
     html_content = """
     <!DOCTYPE html>
     <html>
@@ -917,7 +967,9 @@ async def demo_page():
 
 @app.get("/")
 async def root():
-    """Root endpoint with API information"""
+    """
+    Root endpoint with API information
+    """
     return {
         "name": "GenAI WebSocket Multi-turn Chat API",
         "version": "2.0.0",
@@ -937,6 +989,7 @@ async def root():
             "docs": "GET /docs"
         }
     }
+
 
 if __name__ == '__main__':
     try:
