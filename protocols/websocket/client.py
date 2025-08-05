@@ -759,5 +759,6 @@ def main():
         disconnect_websocket()
         print_session_stats()
 
+
 if __name__ == '__main__':
     main()
