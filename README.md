@@ -211,22 +211,12 @@ Understanding how each protocol handles the conversation flow:
 
 ---
 
-## 🎛️ Interactive Demos
-
-Several protocols include interactive web demos:
-
-| Protocol | Demo URL | Features |
-|----------|----------|----------|
-| **WebSocket** | http://localhost:8000/demo | Real-time bidirectional chat |
-| **SSE** | http://localhost:8000/demo | Live streaming responses |
-| **Streamable HTTP** | http://localhost:8000/demo | Chunked response display |
-| **REST HTTP** | http://localhost:8000/docs | API documentation |
-
 ## 🛠️ Technology Stack
 
 ### Core Technologies
 - **Python 3.8+**: Primary development language
 - **FastAPI**: Modern async web framework (REST, SSE, Streamable HTTP, WebSocket)
+- **Uvicorn**: ASGI server for FastAPI applications
 - **gRPC**: High-performance RPC framework
 - **Google GenAI**: Gemini model integration
 - **Pydantic**: Data validation and serialization
@@ -236,11 +226,7 @@ Several protocols include interactive web demos:
 - **SSE**: sse-starlette for Server-Sent Events
 - **gRPC**: grpcio and grpcio-tools for Protocol Buffers
 - **HTTP**: httpx for async HTTP client operations
-
-### Development Tools
-- **Uvicorn**: ASGI server for FastAPI applications
-- **Colorama**: Cross-platform colored terminal output
-- **Rich**: Enhanced console formatting and logging
+- 
 
 ## 📁 Project Structure
 
