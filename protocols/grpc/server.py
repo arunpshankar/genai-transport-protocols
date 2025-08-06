@@ -1,28 +1,30 @@
-import grpc
+from shared.setup import initialize_genai_client
+from shared.llm import ChatSession
+from typing import AsyncGenerator 
 from concurrent import futures
+from datetime import timedelta 
+from datetime import datetime
+from colorama import Style
+from colorama import Fore
+from colorama import Back
+from colorama import init 
+from typing import Optional
+from typing import List 
+from typing import Dict
+import chat_pb2_grpc  # import generated gRPC code
+import threading
+import chat_pb2  # import generated gRPC code
+import asyncio
 import time
 import uuid
-from datetime import datetime, timedelta
-import threading
-import asyncio
+import grpc
 import json
-from typing import Dict, List, Optional, AsyncGenerator
 import sys
 import os
 
-# Add the shared directory to the path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
-
-from shared.setup import initialize_genai_client
-from llm import ChatSession
-from colorama import Fore, Back, Style, init
 
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)
-
-# Import generated gRPC code (we'll create the proto file)
-import chat_pb2
-import chat_pb2_grpc
 
 class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
     def __init__(self):
@@ -47,16 +49,15 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
             raise
 
     def print_banner(self):
-        """Print the server startup banner"""
-        print(f"\n{Fore.GREEN}╔══════════════════════════════════════════════════════════════╗{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}║{Style.RESET_ALL}               🚀 GRPC MULTI-TURN CHAT SERVER 🚀               {Fore.GREEN}║{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}╠══════════════════════════════════════════════════════════════╣{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}║{Style.RESET_ALL}  Model: {Fore.CYAN}gemini-2.0-flash{' ' * 37}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}║{Style.RESET_ALL}  Framework: {Fore.MAGENTA}gRPC + Async Streaming{' ' * 28}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}║{Style.RESET_ALL}  Multi-turn: {Fore.GREEN}ENABLED{' ' * 37}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}║{Style.RESET_ALL}  Streaming: {Fore.GREEN}BIDIRECTIONAL{' ' * 33}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}║{Style.RESET_ALL}  Status: {Fore.GREEN}READY{' ' * 41}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}╚══════════════════════════════════════════════════════════════╝{Style.RESET_ALL}")
+        print(f"\n{Fore.GREEN}══════════════════════════════════════════════════════════════{Style.RESET_ALL}")
+        print(f"               🚀 GRPC MULTI-TURN CHAT SERVER 🚀               ")
+        print(f"{Fore.GREEN}══════════════════════════════════════════════════════════════{Style.RESET_ALL}")
+        print(f"  Model: {Fore.CYAN}gemini-2.0-flash{' ' * 37}{Style.RESET_ALL}  ")
+        print(f"  Framework: {Fore.MAGENTA}gRPC + Async Streaming{' ' * 28}{Style.RESET_ALL}  ")
+        print(f"  Multi-turn: {Fore.GREEN}ENABLED{' ' * 37}{Style.RESET_ALL}  ")
+        print(f"  Streaming: {Fore.GREEN}BIDIRECTIONAL{' ' * 33}{Style.RESET_ALL}  ")
+        print(f"  Status: {Fore.GREEN}READY{' ' * 41}{Style.RESET_ALL}  ")
+        print(f"{Fore.GREEN}══════════════════════════════════════════════════════════════{Style.RESET_ALL}")
         print()
         print(f"{Fore.YELLOW}🚀 gRPC Multi-turn Chat Server starting up...{Style.RESET_ALL}")
         print(f"{Fore.CYAN}🌐 Server endpoint: localhost:50051{Style.RESET_ALL}")
@@ -65,7 +66,9 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
         print()
 
     def print_request(self, method: str, session_id: str = None, message: str = None):
-        """Print incoming gRPC requests info"""
+        """
+        Print incoming gRPC requests info
+        """
         timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
         
         print(f"\n{Fore.BLUE}┌─ 📨 GRPC REQUEST [{timestamp}] ────────────────────────────────┐{Style.RESET_ALL}")
@@ -89,14 +92,18 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
         print(f"{Fore.GREEN}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
     def print_chunk_sent(self, chunk_num: int, chunk_text: str, session_id: str):
-        """Print individual chunks sent info"""
+        """
+        Print individual chunks sent info
+        """
         timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
         preview = chunk_text[:30].replace('\n', ' ') + ('...' if len(chunk_text) > 30 else '')
         
         print(f"{Fore.YELLOW}🚀 [{timestamp}] Chunk #{chunk_num} → {session_id[:8]}...: \"{preview}\"{Style.RESET_ALL}")
 
     def CreateSession(self, request, context):
-        """Create a new chat session"""
+        """
+        Create a new chat session
+        """
         with self.lock:
             self.stats['total_requests'] += 1
             
@@ -146,7 +153,9 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
                 )
 
     def GetSessionInfo(self, request, context):
-        """Get information about a session"""
+        """
+        Get information about a session
+        """
         with self.lock:
             self.stats['total_requests'] += 1
             
@@ -177,7 +186,9 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
             )
 
     def ListSessions(self, request, context):
-        """List all active sessions"""
+        """
+        List all active sessions
+        """
         with self.lock:
             self.stats['total_requests'] += 1
             self.print_request("ListSessions")
@@ -201,7 +212,9 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
             )
 
     def DeleteSession(self, request, context):
-        """Delete a session"""
+        """
+        Delete a session
+        """
         with self.lock:
             self.stats['total_requests'] += 1
             
@@ -228,7 +241,9 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
             )
 
     def GetServerStats(self, request, context):
-        """Get server statistics"""
+        """
+        Get server statistics
+        """
         with self.lock:
             self.stats['total_requests'] += 1
             self.print_request("GetServerStats")
@@ -251,7 +266,9 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
             )
 
     def Chat(self, request_iterator, context):
-        """Bidirectional streaming chat"""
+        """
+        Bidirectional streaming chat
+        """
         session_id = None
         chat_session = None
         
@@ -392,7 +409,9 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
             )
 
 def serve():
-    """Start the gRPC server"""
+    """
+    Start the gRPC server
+    """
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     servicer = ChatServiceServicer()
     chat_pb2_grpc.add_ChatServiceServicer_to_server(servicer, server)
@@ -405,7 +424,9 @@ def serve():
     return server
 
 def main():
-    """Main server function"""
+    """
+    Main server function
+    """
     try:
         server = serve()
         server.start()
@@ -427,6 +448,7 @@ def main():
         print(f"\n{Fore.YELLOW}👋 gRPC server shutting down gracefully...{Style.RESET_ALL}")
     except Exception as e:
         print(f"{Fore.RED}❌ Error starting gRPC server: {e}{Style.RESET_ALL}")
+
 
 if __name__ == '__main__':
     main()

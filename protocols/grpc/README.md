@@ -8,7 +8,6 @@ High-performance bidirectional streaming multi-turn chat server and client imple
 
 ```bash
 pip install -r requirements.txt
-pip install grpcio grpcio-tools
 export GENAI_MODEL_ID="gemini-2.0-flash"  # Optional, defaults to gemini-2.0-flash
 ```
 

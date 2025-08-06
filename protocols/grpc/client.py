@@ -1,21 +1,25 @@
-import grpc
-import asyncio
-import json
-import time
+from typing import AsyncGenerator
+from datetime import timedelta 
+from datetime import datetime
+from typing import Optional
+from colorama import Style 
+from colorama import Fore
+from colorama import Back
+from colorama import init 
+import chat_pb2_grpc  # import generated gRPC code
 import threading
-from datetime import datetime, timedelta
-from colorama import Fore, Back, Style, init
-import os
+import chat_pb2  # import generated gRPC code
+import asyncio
 import signal
+import json
+import grpc
+import time
 import sys
-from typing import Optional, AsyncGenerator
+import os
+
 
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)
-
-# Import generated gRPC code
-import chat_pb2
-import chat_pb2_grpc
 
 # Configuration
 SERVER_URL = 'localhost:50051'
@@ -59,24 +63,27 @@ grpc_state = {
 print_lock = threading.Lock()
 
 def safe_print(*args, **kwargs):
-    """Thread-safe print function"""
+    """
+    Thread-safe print function
+    """
     with print_lock:
         print(*args, **kwargs)
 
 def print_banner():
-    """Print the application banner"""
-    print(f"\n{Fore.GREEN}╔══════════════════════════════════════════════════════════════╗{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}║{Style.RESET_ALL}               🚀 GRPC MULTI-TURN CHAT CLIENT 🚀               {Fore.GREEN}║{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}╠══════════════════════════════════════════════════════════════╣{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}║{Style.RESET_ALL}  Server: {Fore.CYAN}{SERVER_URL:<47}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}║{Style.RESET_ALL}  Framework: {Fore.MAGENTA}gRPC + Async Streaming{' ' * 28}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}║{Style.RESET_ALL}  Multi-turn: {Fore.GREEN}ENABLED{' ' * 37}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}║{Style.RESET_ALL}  Streaming: {Fore.GREEN}BIDIRECTIONAL{' ' * 33}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}║{Style.RESET_ALL}  Status: {Fore.YELLOW}CONNECTING...{' ' * 35}{Style.RESET_ALL}  {Fore.GREEN}║{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}╚══════════════════════════════════════════════════════════════╝{Style.RESET_ALL}")
+    print(f"\n{Fore.GREEN}══════════════════════════════════════════════════════════════{Style.RESET_ALL}")
+    print(f"               🚀 GRPC MULTI-TURN CHAT CLIENT 🚀               ")
+    print(f"{Fore.GREEN}══════════════════════════════════════════════════════════════{Style.RESET_ALL}")
+    print(f"  Server: {Fore.CYAN}{SERVER_URL:<47}{Style.RESET_ALL}  ")
+    print(f"  Framework: {Fore.MAGENTA}gRPC + Async Streaming{' ' * 28}{Style.RESET_ALL}  ")
+    print(f"  Multi-turn: {Fore.GREEN}ENABLED{' ' * 37}{Style.RESET_ALL}  ")
+    print(f"  Streaming: {Fore.GREEN}BIDIRECTIONAL{' ' * 33}{Style.RESET_ALL}  ")
+    print(f"  Status: {Fore.YELLOW}CONNECTING...{' ' * 35}{Style.RESET_ALL}  ")
+    print(f"{Fore.GREEN}══════════════════════════════════════════════════════════════{Style.RESET_ALL}")
 
 def check_server_health():
-    """Check if the gRPC server is running and healthy"""
+    """
+    Check if the gRPC server is running and healthy
+    """
     print(f"{Fore.YELLOW}🔍 Checking gRPC server health...{Style.RESET_ALL}")
     
     try:
@@ -106,7 +113,9 @@ def check_server_health():
         return False
 
 def print_message_sent(message_type: str, content: str = ""):
-    """Print outgoing gRPC message info"""
+    """
+    Print outgoing gRPC message info
+    """
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
     
     safe_print(f"\n{Fore.BLUE}┌─ 📤 GRPC MESSAGE SENT [{timestamp}] ──────────────────────────┐{Style.RESET_ALL}")
@@ -120,16 +129,22 @@ def print_message_sent(message_type: str, content: str = ""):
     safe_print(f"{Fore.BLUE}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def display_ai_response_header(session_context: str = ""):
-    """Display AI response header"""
+    """
+    Display AI response header
+    """
     safe_print(f"\n{Fore.CYAN}🤖 {Back.BLUE} AI Response (gRPC Streaming) {Style.RESET_ALL} {session_context}")
     safe_print(f"{Fore.WHITE}{'─' * 60}{Style.RESET_ALL}")
 
 def display_ai_response_footer():
-    """Display AI response footer"""
+    """
+    Display AI response footer
+    """
     safe_print(f"{Fore.WHITE}{'─' * 60}{Style.RESET_ALL}")
 
 def print_session_stats():
-    """Print current session statistics"""
+    """
+    Print current session statistics
+    """
     uptime = datetime.now() - session_stats['session_start']
     avg_response_time = (session_stats['total_response_time'] / session_stats['successful_requests'] 
                         if session_stats['successful_requests'] > 0 else 0)
@@ -160,7 +175,9 @@ def print_session_stats():
     print(f"{Fore.MAGENTA}└────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def print_help():
-    """Print available commands"""
+    """
+    Print available commands
+    """
     print(f"\n{Fore.YELLOW}📋 Available Commands:{Style.RESET_ALL}")
     print(f"{Fore.CYAN}  /help{Style.RESET_ALL}     - Show this help message")
     print(f"{Fore.CYAN}  /stats{Style.RESET_ALL}    - Show client session statistics")
@@ -181,7 +198,9 @@ def print_help():
     print(f"{Fore.CYAN}  /delete{Style.RESET_ALL}   - Delete current session")
 
 def get_server_stats():
-    """Get and display server statistics"""
+    """
+    Get and display server statistics
+    """
     try:
         if not grpc_state['stub']:
             print(f"{Fore.RED}❌ Not connected to gRPC server{Style.RESET_ALL}")
@@ -208,7 +227,9 @@ def get_server_stats():
         print(f"{Fore.RED}❌ Error getting server stats: {e}{Style.RESET_ALL}")
 
 def get_session_info():
-    """Get information about current session"""
+    """
+    Get information about current session
+    """
     try:
         if not current_session['session_id']:
             print(f"{Fore.RED}❌ No active session{Style.RESET_ALL}")
@@ -246,7 +267,9 @@ def get_session_info():
         return False
 
 def list_all_sessions():
-    """List all active sessions on the server"""
+    """
+    List all active sessions on the server
+    """
     try:
         if not grpc_state['stub']:
             print(f"{Fore.RED}❌ Not connected to gRPC server{Style.RESET_ALL}")
@@ -278,7 +301,9 @@ def list_all_sessions():
         return False
 
 def connect_grpc():
-    """Connect to gRPC server"""
+    """
+    Connect to gRPC server
+    """
     if current_session['is_connected']:
         print(f"{Fore.YELLOW}⚠️  Already connected to gRPC server{Style.RESET_ALL}")
         return True
@@ -316,7 +341,9 @@ def connect_grpc():
         return False
 
 def disconnect_grpc():
-    """Disconnect from gRPC server"""
+    """
+    Disconnect from gRPC server
+    """
     if not current_session['is_connected']:
         print(f"{Fore.YELLOW}⚠️  Not connected to gRPC server{Style.RESET_ALL}")
         return
@@ -348,7 +375,9 @@ def disconnect_grpc():
         print(f"{Fore.RED}❌ Error disconnecting: {e}{Style.RESET_ALL}")
 
 def create_new_session():
-    """Create a new chat session"""
+    """
+    Create a new chat session
+    """
     if not current_session['is_connected']:
         print(f"{Fore.RED}❌ Not connected to gRPC server. Use /connect first.{Style.RESET_ALL}")
         return
@@ -378,7 +407,9 @@ def create_new_session():
         session_stats['failed_requests'] += 1
 
 def delete_current_session():
-    """Delete the current session"""
+    """
+    Delete the current session
+    """
     if not current_session['session_id']:
         print(f"{Fore.RED}❌ No active session to delete{Style.RESET_ALL}")
         return
@@ -407,7 +438,9 @@ def delete_current_session():
         print(f"{Fore.RED}❌ Error deleting session: {e}{Style.RESET_ALL}")
 
 async def send_chat_message(user_message: str):
-    """Send a chat message via gRPC streaming"""
+    """
+    Send a chat message via gRPC streaming
+    """
     if not current_session['is_connected']:
         print(f"{Fore.RED}❌ Not connected to gRPC server. Use /connect first.{Style.RESET_ALL}")
         return
@@ -505,7 +538,9 @@ async def send_chat_message(user_message: str):
         print(f"\n{Fore.RED}❌ Error sending message: {e}{Style.RESET_ALL}")
 
 async def send_ping():
-    """Send ping to server"""
+    """
+    Send ping to server
+    """
     if not current_session['is_connected']:
         print(f"{Fore.RED}❌ Not connected to gRPC server{Style.RESET_ALL}")
         return
@@ -539,7 +574,9 @@ async def send_ping():
         print(f"{Fore.RED}❌ Error sending ping: {e}{Style.RESET_ALL}")
 
 async def main():
-    """Main chat loop"""
+    """
+    Main chat loop
+    """
     print_banner()
     
     # Check server health before starting
@@ -654,6 +691,7 @@ async def main():
         print(f"\n{Fore.YELLOW}👋 Cleaning up...{Style.RESET_ALL}")
         disconnect_grpc()
         print_session_stats()
+
 
 if __name__ == '__main__':
     asyncio.run(main())
