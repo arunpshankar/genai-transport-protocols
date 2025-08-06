@@ -5,7 +5,7 @@ REST HTTP multi-turn chat server and client implementation with session manageme
 <div align="center">
 
 ### REST HTTP Flow
-<img src="./../sequence_diagrams/rest.png" alt="REST HTTP Sequence Diagram" width="75%">
+<img src="./../../sequence_diagrams/rest.png" alt="REST HTTP Sequence Diagram" width="75%">
 
 *Traditional request/response pattern with session context preservation*
 
