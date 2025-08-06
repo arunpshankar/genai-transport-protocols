@@ -330,17 +330,14 @@ def verify_setup():
     return True
 
 def print_banner():
-    """Print setup banner"""
-    print(f"""
-{Fore.GREEN}╔══════════════════════════════════════════════════════════════╗
-║               🚀 GRPC MULTI-TURN CHAT SETUP 🚀               ║
-╠══════════════════════════════════════════════════════════════╣
-║  Protocol: gRPC + Protocol Buffers                          ║
-║  Framework: High-performance bidirectional streaming        ║
-║  Type Safety: Strongly-typed Protocol Buffers               ║
-║  Performance: Optimized for production workloads            ║
-╚══════════════════════════════════════════════════════════════╝{Style.RESET_ALL}
-""")
+    print(f""" {Fore.GREEN}══════════════════════════════════════════════════════════════
+               🚀 GRPC MULTI-TURN CHAT SETUP 🚀               
+══════════════════════════════════════════════════════════════
+  Protocol: gRPC + Protocol Buffers                          
+  Framework: High-performance bidirectional streaming        
+  Type Safety: Strongly-typed Protocol Buffers               
+  Performance: Optimized for production workloads            
+══════════════════════════════════════════════════════════════{Style.RESET_ALL} """)
 
 def print_usage_instructions():
     """Print usage instructions after successful setup"""

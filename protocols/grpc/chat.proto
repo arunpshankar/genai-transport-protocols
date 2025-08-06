@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package chat;
 
-// The ChatService service definition
+// The Chat service definition
 service ChatService {
   // Create a new chat session
   rpc CreateSession(CreateSessionRequest) returns (CreateSessionResponse);
