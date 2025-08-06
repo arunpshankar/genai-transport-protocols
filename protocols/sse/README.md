@@ -2,6 +2,15 @@
 
 Real-time streaming multi-turn chat server and client implementation with Server-Sent Events, session management, and live response streaming.
 
+<div align="center">
+
+### Server-Sent Events Flow
+<img src="./../../sequence_diagrams/sse.png" alt="SSE Sequence Diagram" width="75%">
+
+*Event-driven streaming with automatic reconnection and structured event types*
+
+</div>
+
 ## Quick Start
 
 **Prerequisites**

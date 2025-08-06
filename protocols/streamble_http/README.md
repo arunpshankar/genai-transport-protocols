@@ -2,6 +2,15 @@
 
 Real-time streaming multi-turn chat server and client implementation using HTTP chunked transfer encoding, session management, and live response streaming.
 
+<div align="center">
+
+### Streamable HTTP Flow  
+<img src="./../../sequence_diagrams/streamable-http.png" alt="Streamable HTTP Sequence Diagram" width="75%">
+
+*HTTP chunked encoding enables real-time streaming with NDJSON format*
+
+</div>
+
 ## Quick Start
 
 **Prerequisites**

@@ -2,6 +2,15 @@
 
 Real-time bidirectional multi-turn chat server and client implementation using WebSockets, session management, and interactive communication features.
 
+<div align="center">
+
+### WebSocket Flow
+<img src="./../../sequence_diagrams/websockets.png" alt="WebSocket Sequence Diagram" width="75%">
+
+*Bidirectional real-time communication supporting typing indicators and session broadcasting*
+
+</div>
+
 ## Quick Start
 
 **Prerequisites**

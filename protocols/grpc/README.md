@@ -2,6 +2,15 @@
 
 High-performance bidirectional streaming multi-turn chat server and client implementation using gRPC, Protocol Buffers, and simulated streaming communication.
 
+<div align="center">
+
+### gRPC Flow
+<img src="./../../sequence_diagrams/grpc.png" alt="gRPC Sequence Diagram" width="75%">
+
+*High-performance binary streaming with Protocol Buffers and type safety*
+
+</div>
+
 ## Quick Start
 
 **Prerequisites**
