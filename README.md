@@ -1,6 +1,10 @@
 # GenAI Transport Protocols
 
-A comprehensive implementation showcase demonstrating **five different transport protocols** for building real-time AI chat applications using Google's Gemini model. This repository explores the performance, complexity, and use-case differences between various communication protocols for streaming AI responses.
+Implementation showcase demonstrating **five different transport protocols** for building real-time AI chat applications using Google's Gemini model. This repository explores the performance, complexity, and use-case differences between various communication protocols for streaming AI responses.
+
+For a comprehensive technical guide covering the engineering decisions, performance comparisons, and implementation details of these transport protocols, check out the supporting Medium article:
+**[Engineering Transport Layers for GenAI: REST, WebSockets, gRPC and Beyond](https://medium.com/@shankar.arunp/engineering-transport-layers-for-genai-rest-websockets-grpc-and-beyond-b3a96986a954)**
+
 
 <div align="center">
   <img src="./img/http_gemini.png" alt="Description">
