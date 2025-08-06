@@ -1,8 +1,12 @@
+from colorama import Style
+from colorama import Fore
+from colorama import Back
+from colorama import init 
 from pathlib import Path
 import subprocess
 import sys
 import os
-from colorama import Fore, Back, Style, init
+
 
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)
@@ -16,7 +20,6 @@ This script handles the complete setup for the gRPC implementation:
 3. Generate gRPC code
 4. Verify setup
 """
-
 
 def check_python_version():
     """
@@ -340,7 +343,9 @@ def print_banner():
 ══════════════════════════════════════════════════════════════{Style.RESET_ALL} """)
 
 def print_usage_instructions():
-    """Print usage instructions after successful setup"""
+    """
+    Print usage instructions after successful setup
+    """
     print(f"""
 {Fore.GREEN}🎉 gRPC Multi-turn Chat Setup Complete!{Style.RESET_ALL}
 
@@ -371,7 +376,9 @@ def print_usage_instructions():
 """)
 
 def print_setup_progress():
-    """Print setup progress info"""
+    """
+    Print setup progress info
+    """
     print(f"\n{Fore.CYAN}┌─ 🔧 GRPC SETUP PROGRESS ─────────────────────────────────────┐{Style.RESET_ALL}")
     print(f"  Phase 1: Checking Python version compatibility")
     print(f"  Phase 2: Installing required dependencies")
@@ -381,7 +388,9 @@ def print_setup_progress():
     print(f"{Fore.CYAN}└──────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def print_completion_summary():
-    """Print completion summary"""
+    """
+    Print completion summary
+    """
     print(f"\n{Fore.GREEN}┌─ ✅ SETUP COMPLETED SUCCESSFULLY ───────────────────────────────┐{Style.RESET_ALL}")
     print(f"  Protocol Buffers: chat.proto")
     print(f"  Generated Code: chat_pb2.py, chat_pb2_grpc.py")
@@ -391,7 +400,9 @@ def print_completion_summary():
     print(f"{Fore.GREEN}└──────────────────────────────────────────────────────────────┘{Style.RESET_ALL}")
 
 def main():
-    """Main setup function"""
+    """
+    Main setup function
+    """
     print_banner()
     print_setup_progress()
     
@@ -423,6 +434,7 @@ def main():
     print_completion_summary()
     print_usage_instructions()
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
