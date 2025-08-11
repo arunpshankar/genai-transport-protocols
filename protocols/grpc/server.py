@@ -400,12 +400,33 @@ class ChatServiceServicer(chat_pb2_grpc.ChatServiceServicer):
                             session_id=session_id,
                             error_message=f"Error generating response: {str(e)}"
                         )
+            
+            # Normal completion - iterator finished without errors
+            if session_id:
+                print(f"{Fore.CYAN}📡 Chat stream completed normally for session {session_id[:8]}...{Style.RESET_ALL}")
+        
+        except grpc.RpcError as e:
+            # Handle gRPC-specific errors (client disconnect, etc.)
+            if e.code() == grpc.StatusCode.CANCELLED:
+                print(f"{Fore.YELLOW}📡 Client cancelled connection for session {session_id[:8] if session_id else 'unknown'}...{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.RED}❌ gRPC error in chat stream: {e.details()}{Style.RESET_ALL}")
+                yield chat_pb2.ChatResponse(
+                    type=chat_pb2.ChatResponse.ERROR,
+                    error_message=f"gRPC error: {e.details()}"
+                )
+        
+        except StopIteration:
+            # This is normal - iterator finished
+            if session_id:
+                print(f"{Fore.CYAN}📡 Request iterator completed for session {session_id[:8]}...{Style.RESET_ALL}")
         
         except Exception as e:
-            print(f"{Fore.RED}❌ Error in chat stream: {e}{Style.RESET_ALL}")
+            # Handle unexpected errors
+            print(f"{Fore.RED}❌ Unexpected error in chat stream: {e}{Style.RESET_ALL}")
             yield chat_pb2.ChatResponse(
                 type=chat_pb2.ChatResponse.ERROR,
-                error_message=f"Stream error: {str(e)}"
+                error_message=f"Unexpected error: {str(e)}"
             )
 
 def serve():
